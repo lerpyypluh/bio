@@ -41,17 +41,6 @@
     updateBtn();
   });
 
-  // Attempt autoplay on page load
-  window.addEventListener('load', async () => {
-    try {
-      await music.play();
-      playing = true;
-      updateBtn();
-    } catch {
-      console.log('Autoplay blocked, waiting for user interaction');
-    }
-  });
-
   // Canvas background: soft glowing particles with parallax
   const canvas = document.getElementById('bgCanvas');
   const ctx = canvas.getContext('2d');
