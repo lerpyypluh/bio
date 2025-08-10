@@ -93,7 +93,15 @@ html,body{
   object-fit:cover;
   border:6px solid rgba(255,255,255,0.06);
   box-shadow:0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(110,231,255,0.06);
-  transform:translateZ(0);
+  /* remove this if you want: transform:translateZ(0); */
+  
+  animation: spin 30s linear infinite;
+}
+
+/* Add this keyframes block anywhere in the CSS, for example near the bottom: */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .text{
