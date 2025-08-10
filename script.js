@@ -14,7 +14,7 @@
   ];
 
   nameEl.textContent = dataName;
-  
+
   // Typewriter effect for tagline
   let i = 0;
   function typeWriter() {
@@ -37,29 +37,6 @@
     a.innerHTML = s.svg;
     linksEl.appendChild(a);
   });
-
-  // Audio
-  const music = document.getElementById('bgMusic');
-  const btn = document.getElementById('playPause');
-  let playing = false;
-  function updateBtn(){ btn.textContent = playing ? '⏸' : '⏵'; }
-  btn.addEventListener('click', async () => {
-    try{
-      if(playing){ music.pause(); playing = false; }
-      else{ await music.play(); playing = true; }
-    }catch(e){ console.warn('autoplay blocked', e); }
-    updateBtn();
-  });
-
-  // Web Audio API for waveform
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 256;
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-  const source = audioCtx.createMediaElementSource(music);
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
 
   // Canvas background: soft glowing particles with parallax
   const canvas = document.getElementById('bgCanvas');
@@ -115,27 +92,115 @@
       ctx.fill();
     });
 
-    // waveform visualizer
-    analyser.getByteFrequencyData(dataArray);
-    const barWidth = (innerWidth / bufferLength);
-    let barX = 0;
-    for (let i = 0; i < bufferLength; i++) {
-      const barHeight = dataArray[i] / 2;
-      ctx.fillStyle = `rgba(255,255,255,0.5)`;
-      ctx.fillRect(barX, innerHeight - barHeight, barWidth - 1, barHeight);
-      barX += barWidth;
-    }
-
+    // vignette
     ctx.fillStyle = 'rgba(0,0,0,0.12)'; 
     ctx.fillRect(0,0,innerWidth,innerHeight);
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
 
+  // Audio and music controls
+  const audio = document.getElementById('bgMusic');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const repeatBtn = document.getElementById('repeatBtn');
+  const progressBar = document.getElementById('progressBar');
+  const progress = document.getElementById('progress');
+  const progressHandle = document.getElementById('progressHandle');
+
+  let isPlaying = false;
+  let isRepeating = false;
+
+  function updatePlayPauseBtn() {
+    playPauseBtn.textContent = isPlaying ? '⏸' : '⏵';
+  }
+
+  function updateRepeatBtn() {
+    repeatBtn.style.color = isRepeating ? 'var(--accent)' : 'var(--text)';
+  }
+
+  playPauseBtn.addEventListener('click', async () => {
+    try {
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+      } else {
+        await audio.play();
+        isPlaying = true;
+      }
+    } catch (e) {
+      console.warn('Autoplay blocked or error', e);
+    }
+    updatePlayPauseBtn();
+  });
+
+  repeatBtn.addEventListener('click', () => {
+    isRepeating = !isRepeating;
+    audio.loop = isRepeating;
+    updateRepeatBtn();
+  });
+
+  // Update progress bar as music plays
+  audio.addEventListener('timeupdate', () => {
+    if (!progressBarDragging) {
+      const percent = (audio.currentTime / audio.duration) * 100 || 0;
+      progress.style.width = percent + '%';
+      progressHandle.style.left = percent + '%';
+    }
+  });
+
+  // Handle dragging the progress handle
+  let progressBarDragging = false;
+
+  function seekToPosition(clientX) {
+    const rect = progressBar.getBoundingClientRect();
+    let pos = clientX - rect.left;
+    pos = Math.max(0, Math.min(pos, rect.width));
+    const percent = pos / rect.width;
+    audio.currentTime = percent * audio.duration;
+    progress.style.width = (percent * 100) + '%';
+    progressHandle.style.left = (percent * 100) + '%';
+  }
+
+  progressHandle.addEventListener('mousedown', (e) => {
+    progressBarDragging = true;
+    e.preventDefault();
+  });
+  document.addEventListener('mouseup', (e) => {
+    if (progressBarDragging) {
+      progressBarDragging = false;
+      seekToPosition(e.clientX);
+    }
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (progressBarDragging) {
+      seekToPosition(e.clientX);
+    }
+  });
+
+  // Clicking on progress bar jumps the music position
+  progressBar.addEventListener('click', (e) => {
+    seekToPosition(e.clientX);
+  });
+
+  // Initialize buttons state
+  updatePlayPauseBtn();
+  updateRepeatBtn();
+
   // Resume audio context when user interacts (autoplay policy)
   document.addEventListener('click', () => {
-    if (audioCtx.state === 'suspended') {
+    if (audioCtx && audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
   });
+
+  // Create Web Audio API context (required for some browsers autoplay policies)
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+  try {
+    audioCtx = new AudioContext();
+    const source = audioCtx.createMediaElementSource(audio);
+    source.connect(audioCtx.destination);
+  } catch (e) {
+    console.warn('Web Audio API not supported or failed', e);
+  }
 })();
