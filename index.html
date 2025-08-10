@@ -1,56 +1,30 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-name="YOUR NAME" data-tagline="Producer • Designer • Creator"
+      data-twitter="https://twitter.com/yourhandle"
+      data-instagram="https://instagram.com/yourhandle"
+      data-github="https://github.com/yourhandle">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>- tino bio -</title>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Bio</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="images/favicon.png" type="image/png">
 </head>
-<body data-name="- tino -" data-tagline="Producer • Designer • Creator" data-twitter="https://twitter.com/batmantinoo" data-instagram="https://instagram.com/nyc.tinoo" data-github="https://github.com/tinosgames">
-  <div id="app">
-    <canvas id="bgCanvas" aria-hidden="true"></canvas>
+<body>
+  <canvas id="bgCanvas"></canvas>
+  
+  <div class="content">
+    <img src="profile.jpg" alt="Profile" class="profile-pic">
+    <h1 id="name"></h1>
+    <h2 id="tagline"></h2>
 
-    <header class="corner-controls">
-      <a class="icon-btn" href="#about" aria-label="About">⍟</a>
-    </header>
+    <div class="waveform" id="waveform"></div>
 
-    <main class="hero">
-      <div class="hero-inner">
-        <div class="profile-wrap">
-          <div class="neon-ring"></div>
-          <img src="images/profile.png" alt="Profile" class="profile">
-        </div>
+    <div id="links"></div>
 
-        <div class="text">
-          <h1 id="name">- tino -</h1>
-          <p id="tagline">Producer • Designer • Creator</p>
-
-          <div class="links" id="links">
-            <!-- social icons injected by script -->
-          </div>
-        </div>
-      </div>
-
-      <div class="scroll-hint">Scroll</div>
-    </main>
-
-    <section id="about" class="about">
-      <div class="about-inner">
-        <h2>About</h2>
-        <p class="lead"> NYC • BIKES • METRO • TRAVIS </p>
-        <p>Made for high-resolution displays. Edits are done by committing changes to the repo. ALL CREDITS TINO</p>
-      </div>
-    </section>
-
-    <audio id="bgMusic" loop preload="auto">
-      <source src="music/bg-music.mp3" type="audio/mpeg">
-    </audio>
-
+    <button id="playPause" class="music-btn">⏵</button>
+    <audio id="bgMusic" src="music.mp3" loop></audio>
   </div>
 
-  <script src="script.js" defer></script>
+  <script src="script.js"></script>
 </body>
 </html>
