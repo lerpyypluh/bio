@@ -1,70 +1,37 @@
-/* Basic Reset & Fonts */
-* {
-  box-sizing: border-box;
-  margin: 0; padding: 0;
-  font-family: 'Space Grotesk', sans-serif;
-  color: #ddd;
-  user-select: none;
-}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
-body, html {
+html, body {
+  margin: 0;
+  padding: 0;
   height: 100%;
-  background: #060913;
-  overflow-x: hidden;
-  --neon: #6ee7ff;
-  --accent: #00ffff;
-  --text: #ccc;
+  background: #000;
+  font-family: 'Orbitron', sans-serif;
+  color: white;
+  overflow: hidden;
 }
 
-/* Profile and text styling */
-.hero {
-  min-height: 80vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 40px 20px 120px; /* bottom padding for music controls */
-  position: relative;
-  z-index: 5;
-}
-
-.profile-wrap {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 20px;
-}
-
-.neon-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 160px;
-  height: 160px;
-  border: 3px solid var(--neon);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  filter: drop-shadow(0 0 6px var(--neon));
-  animation: pulse 3s ease-in-out infinite;
+#bgCanvas {
+  position: fixed;
+  top: 0; left: 0;
   z-index: -1;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 0 6px var(--neon), 0 0 12px var(--neon);
-  }
-  50% {
-    box-shadow: 0 0 18px var(--accent), 0 0 36px var(--accent);
-  }
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
 }
 
-.profile {
-  width: 140px;
-  height: 140px;
+.profile-pic {
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
-  display: block;
-  margin: 0 auto;
+  border: 3px solid #0ff;
   animation: spin 12s linear infinite;
-  box-shadow: 0 0 18px var(--neon);
+  margin-bottom: 20px;
 }
 
 @keyframes spin {
@@ -72,180 +39,70 @@ body, html {
   to { transform: rotate(360deg); }
 }
 
-.text h1 {
-  font-weight: 700;
-  font-size: 3rem;
-  margin-bottom: 8px;
-  color: var(--neon);
-  letter-spacing: 2px;
-  text-shadow: 0 0 8px var(--neon);
+h1, h2 {
+  margin: 5px 0;
 }
 
-.text p {
-  font-weight: 400;
-  font-size: 1.25rem;
-  letter-spacing: 1.2px;
-  color: var(--text);
-  min-height: 28px; /* to prevent layout jump during typewriter */
-}
-
-/* Social link buttons */
-.links {
-  margin-top: 24px;
+#links {
+  margin-top: 20px;
   display: flex;
-  justify-content: center;
-  gap: 18px;
+  gap: 15px;
 }
 
 .link-btn {
-  display: inline-flex;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+  padding: 12px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: rgba(255 255 255 / 0.05);
-  border-radius: 10px;
-  border: 1px solid rgba(255 255 255 / 0.12);
-  color: var(--text);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
+  color: white;
+  width: 50px;
+  height: 50px;
+  transition: background 0.3s;
 }
-
 .link-btn:hover {
-  color: var(--accent);
-  background: rgba(0, 255, 255, 0.2);
-  box-shadow: 0 0 10px var(--accent);
+  background: rgba(255,255,255,0.2);
 }
 
 .link-btn svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 1.6;
+  width: 24px;
+  height: 24px;
 }
 
-/* Corner controls */
-.corner-controls {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 20;
-  display: flex;
-  gap: 10px;
-}
-
-.icon-btn {
-  background: linear-gradient(180deg, rgba(255 255 255 / 0.03), rgba(255 255 255 / 0.02));
-  border: 1px solid rgba(255 255 255 / 0.04);
-  padding: 10px;
-  border-radius: 12px;
-  color: var(--text);
-  backdrop-filter: blur(6px);
-  cursor: pointer;
+.music-btn {
+  margin-top: 25px;
+  background: rgba(0,255,255,0.15);
+  border: none;
+  padding: 12px 20px;
   font-size: 20px;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-}
-
-.icon-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-}
-
-/* About Section */
-.about {
-  padding: 80px 20px 160px;
-  max-width: 700px;
-  margin: 0 auto;
-  color: var(--text);
-}
-
-.about-inner h2 {
-  font-weight: 700;
-  font-size: 2.5rem;
-  margin-bottom: 16px;
-  color: var(--neon);
-  text-align: center;
-  text-shadow: 0 0 8px var(--neon);
-}
-
-.about-inner .lead {
-  font-weight: 600;
-  font-size: 1.3rem;
-  text-align: center;
-  margin-bottom: 12px;
-  color: var(--accent);
-}
-
-/* Scroll hint */
-.scroll-hint {
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1rem;
-  color: var(--text);
-  opacity: 0.4;
-  user-select: none;
-}
-
-/* Music controls bar (bottom) */
-.music-controls {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 600px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  background: rgba(255 255 255 / 0.05);
-  border: 1px solid rgba(255 255 255 / 0.12);
-  padding: 8px 16px;
-  border-radius: 14px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 10px rgba(110, 231, 255, 0.3);
-  z-index: 10;
-}
-
-.progress-bar {
-  flex: 1;
-  height: 6px;
-  background: rgba(255 255 255 / 0.1);
-  border-radius: 6px;
-  position: relative;
+  border-radius: 8px;
+  color: cyan;
   cursor: pointer;
 }
 
-.progress {
-  position: absolute;
-  height: 100%;
-  background: var(--neon);
-  width: 0%;
-  border-radius: 6px 0 0 6px;
-  transition: width 0.1s linear;
+.waveform {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  height: 40px;
+  gap: 4px;
 }
 
-.progress-handle {
-  position: absolute;
-  top: 50%;
-  left: 0%;
-  width: 14px;
-  height: 14px;
-  background: var(--neon);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  cursor: grab;
-  transition: background 0.2s;
+.waveform span {
+  display: block;
+  width: 4px;
+  background: cyan;
+  animation: wave 1.2s infinite ease-in-out;
 }
 
-.progress-handle:active,
-.progress-handle:focus {
-  background: var(--accent);
-  cursor: grabbing;
-  outline: none;
+.waveform span:nth-child(1) { animation-delay: 0s; }
+.waveform span:nth-child(2) { animation-delay: 0.1s; }
+.waveform span:nth-child(3) { animation-delay: 0.2s; }
+.waveform span:nth-child(4) { animation-delay: 0.3s; }
+.waveform span:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes wave {
+  0%, 100% { height: 10px; }
+  50% { height: 35px; }
 }
