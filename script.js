@@ -5,7 +5,7 @@
   const linksEl = document.getElementById('links');
 
   // read data- attributes
-  const dataName = root.dataset.name || '- tino -';
+  const dataName = root.dataset.name || 'YOUR NAME';
   const dataTag = root.dataset.tagline || 'Producer • Designer • Creator';
   const socials = [
     {href: root.dataset.twitter, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53A4.48 4.48 0 0 0 16 3a4.48 4.48 0 0 0-4.47 4.47c0 .35.04.7.12 1.03A12.8 12.8 0 0 1 3 4s-4 9 5 13a13 13 0 0 1-8 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>'},
@@ -32,7 +32,6 @@
   const btn = document.getElementById('playPause');
   let playing = false;
   function updateBtn(){ btn.textContent = playing ? '⏸' : '⏵'; }
-  
   btn.addEventListener('click', async () => {
     try{
       if(playing){ music.pause(); playing = false; }
@@ -63,14 +62,16 @@
     r: Math.random()*1.8+0.5, 
     vx:(Math.random()*0.6-0.3), 
     vy:(Math.random()*0.4-0.2), 
+    // change color to white/grey:
     color: Math.random() > 0.5 ? '255,255,255' : '180,180,180' 
-  }));
+  });
 
   let mx = innerWidth/2, my = innerHeight/2;
   addEventListener('mousemove', (e)=>{ mx = e.clientX; my = e.clientY; });
 
   function draw(t){ 
     ctx.clearRect(0,0,innerWidth,innerHeight);
+    // soft gradient wash
     const g = ctx.createLinearGradient(0,0,innerWidth,innerHeight);
     g.addColorStop(0,'rgba(6,9,19,0.6)');
     g.addColorStop(1,'rgba(3,6,13,0.6)');
@@ -80,11 +81,14 @@
     particles.forEach((p,i)=>{
       p.x += p.vx * (0.2 + Math.sin(t/1000 + i) * 0.3);
       p.y += p.vy * (0.2 + Math.cos(t/1200 + i) * 0.3);
+      // parallax based on mouse
       const dx = (mx - innerWidth/2) * 0.02 * (p.r);
       const dy = (my - innerHeight/2) * 0.02 * (p.r);
       const x = p.x + dx, y = p.y + dy;
 
+      // glow
       ctx.beginPath();
+      const hue = (200 + Math.sin(t/2000 + i) * 40) % 360;
       ctx.fillStyle = `rgba(${p.color},0.15)`;
       ctx.arc(x,y,p.r*6,0,Math.PI*2); 
       ctx.fill();
@@ -94,6 +98,7 @@
       ctx.fill();
     });
 
+    // vignette
     ctx.fillStyle = 'rgba(0,0,0,0.12)'; 
     ctx.fillRect(0,0,innerWidth,innerHeight);
     requestAnimationFrame(draw);
