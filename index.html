@@ -1,31 +1,56 @@
-<!-- index.html -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YOUR NAME</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="images/favicon.png" type="image/png" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Your Name — Dark Neon</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="images/favicon.png" type="image/png">
 </head>
-<body>
-  <div class="container">
-    <img src="images/profile.png" alt="Profile" class="profile-pic" />
-    <h1>Your Name</h1>
-    <p class="tagline">Your cool tagline goes here</p>
+<body data-name="YOUR NAME" data-tagline="Producer • Designer • Creator" data-twitter="https://twitter.com/yourhandle" data-instagram="https://instagram.com/yourhandle" data-github="https://github.com/yourhandle">
+  <div id="app">
+    <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-    <div class="socials">
-      <a href="https://twitter.com/yourhandle" target="_blank">🐦</a>
-      <a href="https://instagram.com/yourhandle" target="_blank">📸</a>
-      <a href="https://github.com/yourhandle" target="_blank">💻</a>
-    </div>
+    <header class="corner-controls">
+      <button id="playPause" class="icon-btn" aria-label="Toggle music">⏵</button>
+      <a class="icon-btn" href="#about" aria-label="About">⍟</a>
+    </header>
 
-    <audio id="bg-music" src="music/song.mp3" autoplay loop></audio>
-    <button id="music-toggle">🔇</button>
+    <main class="hero">
+      <div class="hero-inner">
+        <div class="profile-wrap">
+          <div class="neon-ring"></div>
+          <img src="images/profile.png" alt="Profile" class="profile">
+        </div>
+
+        <div class="text">
+          <h1 id="name">- tino -</h1>
+          <p id="tagline">Producer • Designer • Creator</p>
+
+          <div class="links" id="links">
+            <!-- social icons injected by script -->
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-hint">Scroll</div>
+    </main>
+
+    <section id="about" class="about">
+      <div class="about-inner">
+        <h2>About</h2>
+        <p class="lead">C# coding language • SI - NYC • metro metro metro </p>
+      </div>
+    </section>
+
+    <audio id="bgMusic" loop preload="auto">
+      <source src="music/bg-music.mp3" type="audio/mpeg">
+    </audio>
+
   </div>
 
-  <canvas id="particles"></canvas>
-
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
