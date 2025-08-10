@@ -1,4 +1,3 @@
-// Dark Neon site interactions: audio control, social injection, canvas particles & subtle parallax
 (() => {
   const root = document.body;
   const nameEl = document.getElementById('name');
@@ -6,7 +5,7 @@
   const linksEl = document.getElementById('links');
 
   // read data- attributes
-  const dataName = root.dataset.name || 'YOUR NAME';
+  const dataName = root.dataset.name || '- tino -';
   const dataTag = root.dataset.tagline || 'Producer • Designer • Creator';
   const socials = [
     {href: root.dataset.twitter, svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53A4.48 4.48 0 0 0 16 3a4.48 4.48 0 0 0-4.47 4.47c0 .35.04.7.12 1.03A12.8 12.8 0 0 1 3 4s-4 9 5 13a13 13 0 0 1-8 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>'},
@@ -23,6 +22,7 @@
     a.className = 'link-btn';
     a.href = s.href;
     a.target = '_blank';
+    a.rel = 'noopener noreferrer';
     a.innerHTML = s.svg;
     linksEl.appendChild(a);
   });
@@ -44,22 +44,39 @@
   const canvas = document.getElementById('bgCanvas');
   const ctx = canvas.getContext('2d');
   let DPR = Math.max(1, window.devicePixelRatio || 1);
-  function resize(){ canvas.width = innerWidth * DPR; canvas.height = innerHeight * DPR; canvas.style.width = innerWidth + 'px'; canvas.style.height = innerHeight + 'px'; ctx.setTransform(DPR,0,0,DPR,0,0); }
-  addEventListener('resize', resize); resize();
+  function resize(){ 
+    canvas.width = innerWidth * DPR; 
+    canvas.height = innerHeight * DPR; 
+    canvas.style.width = innerWidth + 'px'; 
+    canvas.style.height = innerHeight + 'px'; 
+    ctx.setTransform(DPR,0,0,DPR,0,0); 
+  }
+  addEventListener('resize', resize); 
+  resize();
 
   const particles = [];
   const COUNT = Math.floor((innerWidth * innerHeight) / 12000);
-  for(let i=0;i<COUNT;i++) particles.push({ x: Math.random()*innerWidth, y: Math.random()*innerHeight, r: Math.random()*1.8+0.5, vx:(Math.random()*0.6-0.3), vy:(Math.random()*0.4-0.2), hue: Math.random()*360 });
+  for(let i=0;i<COUNT;i++) particles.push({ 
+    x: Math.random()*innerWidth, 
+    y: Math.random()*innerHeight, 
+    r: Math.random()*1.8+0.5, 
+    vx:(Math.random()*0.6-0.3), 
+    vy:(Math.random()*0.4-0.2), 
+    // change color to white/grey:
+    color: Math.random() > 0.5 ? '255,255,255' : '180,180,180' 
+  });
 
   let mx = innerWidth/2, my = innerHeight/2;
   addEventListener('mousemove', (e)=>{ mx = e.clientX; my = e.clientY; });
 
-  function draw(t){ ctx.clearRect(0,0,innerWidth,innerHeight);
+  function draw(t){ 
+    ctx.clearRect(0,0,innerWidth,innerHeight);
     // soft gradient wash
     const g = ctx.createLinearGradient(0,0,innerWidth,innerHeight);
     g.addColorStop(0,'rgba(6,9,19,0.6)');
     g.addColorStop(1,'rgba(3,6,13,0.6)');
-    ctx.fillStyle = g; ctx.fillRect(0,0,innerWidth,innerHeight);
+    ctx.fillStyle = g; 
+    ctx.fillRect(0,0,innerWidth,innerHeight);
 
     particles.forEach((p,i)=>{
       p.x += p.vx * (0.2 + Math.sin(t/1000 + i) * 0.3);
@@ -72,13 +89,18 @@
       // glow
       ctx.beginPath();
       const hue = (200 + Math.sin(t/2000 + i) * 40) % 360;
-      ctx.fillStyle = `hsla(${hue},90%,65%,0.08)`;
-      ctx.arc(x,y,p.r*6,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.fillStyle = `hsla(${hue},90%,65%,0.18)`; ctx.arc(x,y,p.r*2.4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(${p.color},0.15)`;
+      ctx.arc(x,y,p.r*6,0,Math.PI*2); 
+      ctx.fill();
+      ctx.beginPath(); 
+      ctx.fillStyle = `rgba(${p.color},0.4)`; 
+      ctx.arc(x,y,p.r*2.4,0,Math.PI*2); 
+      ctx.fill();
     });
 
     // vignette
-    ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(0,0,innerWidth,innerHeight);
+    ctx.fillStyle = 'rgba(0,0,0,0.12)'; 
+    ctx.fillRect(0,0,innerWidth,innerHeight);
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
