@@ -14,18 +14,7 @@
   ];
 
   nameEl.textContent = dataName;
-  
-  // Typewriter effect for tagline
-  let i = 0;
-  function typeWriter() {
-    if (i < dataTag.length) {
-      tagEl.textContent += dataTag.charAt(i);
-      i++;
-      setTimeout(typeWriter, 75);
-    }
-  }
-  tagEl.textContent = '';
-  typeWriter();
+  tagEl.textContent = dataTag;
 
   socials.forEach(s => {
     if(!s.href) return;
@@ -51,16 +40,6 @@
     updateBtn();
   });
 
-  // Web Audio API for waveform
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 256;
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-  const source = audioCtx.createMediaElementSource(music);
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
-
   // Canvas background: soft glowing particles with parallax
   const canvas = document.getElementById('bgCanvas');
   const ctx = canvas.getContext('2d');
@@ -83,6 +62,7 @@
     r: Math.random()*1.8+0.5, 
     vx:(Math.random()*0.6-0.3), 
     vy:(Math.random()*0.4-0.2), 
+    // change color to white/grey:
     color: Math.random() > 0.5 ? '255,255,255' : '180,180,180' 
   });
 
@@ -91,21 +71,24 @@
 
   function draw(t){ 
     ctx.clearRect(0,0,innerWidth,innerHeight);
+    // soft gradient wash
     const g = ctx.createLinearGradient(0,0,innerWidth,innerHeight);
     g.addColorStop(0,'rgba(6,9,19,0.6)');
     g.addColorStop(1,'rgba(3,6,13,0.6)');
     ctx.fillStyle = g; 
     ctx.fillRect(0,0,innerWidth,innerHeight);
 
-    // particles
-    particles.forEach((p,i)=>{ 
+    particles.forEach((p,i)=>{
       p.x += p.vx * (0.2 + Math.sin(t/1000 + i) * 0.3);
       p.y += p.vy * (0.2 + Math.cos(t/1200 + i) * 0.3);
+      // parallax based on mouse
       const dx = (mx - innerWidth/2) * 0.02 * (p.r);
       const dy = (my - innerHeight/2) * 0.02 * (p.r);
       const x = p.x + dx, y = p.y + dy;
 
+      // glow
       ctx.beginPath();
+      const hue = (200 + Math.sin(t/2000 + i) * 40) % 360;
       ctx.fillStyle = `rgba(${p.color},0.15)`;
       ctx.arc(x,y,p.r*6,0,Math.PI*2); 
       ctx.fill();
@@ -115,27 +98,11 @@
       ctx.fill();
     });
 
-    // waveform visualizer
-    analyser.getByteFrequencyData(dataArray);
-    const barWidth = (innerWidth / bufferLength);
-    let barX = 0;
-    for (let i = 0; i < bufferLength; i++) {
-      const barHeight = dataArray[i] / 2;
-      ctx.fillStyle = `rgba(255,255,255,0.5)`;
-      ctx.fillRect(barX, innerHeight - barHeight, barWidth - 1, barHeight);
-      barX += barWidth;
-    }
-
+    // vignette
     ctx.fillStyle = 'rgba(0,0,0,0.12)'; 
     ctx.fillRect(0,0,innerWidth,innerHeight);
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
 
-  // Resume audio context when user interacts (autoplay policy)
-  document.addEventListener('click', () => {
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  });
 })();
