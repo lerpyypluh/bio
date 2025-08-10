@@ -14,7 +14,6 @@
     <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
     <header class="corner-controls">
-      <button id="playPause" class="icon-btn" aria-label="Toggle music">⏵</button>
       <a class="icon-btn" href="#about" aria-label="About">⍟</a>
     </header>
 
@@ -46,12 +45,19 @@
       </div>
     </section>
 
-    <!-- 🎵 Waveform Visualizer Canvas -->
-    <canvas id="visualizer-canvas"></canvas>
-
     <audio id="bgMusic" loop preload="auto">
       <source src="music/bg-music.mp3" type="audio/mpeg">
     </audio>
+
+    <!-- Music controls bar at bottom -->
+    <div id="musicControls" class="music-controls">
+      <button id="playPauseBtn" class="icon-btn" aria-label="Play/Pause">⏵</button>
+      <div id="progressBar" class="progress-bar" aria-label="Music progress">
+        <div id="progress" class="progress"></div>
+        <div id="progressHandle" class="progress-handle" tabindex="0"></div>
+      </div>
+      <button id="repeatBtn" class="icon-btn" aria-label="Toggle repeat">🔁</button>
+    </div>
 
   </div>
 
