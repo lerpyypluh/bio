@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Drive — teeno</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">teeno<span class="dot">.xyz</span> / drive</div>
+    <input id="search" type="search" placeholder="Search files (name, ext)..." />
+  </header>
+
+  <main>
+    <div id="list" class="file-list" aria-live="polite"></div>
+    <div id="empty" class="empty">No files found.</div>
+  </main>
+
+  <!-- Preview modal -->
+  <div id="previewModal" class="modal" aria-hidden="true">
+    <div class="modal-inner">
+      <button id="closePreview" class="close">✕</button>
+      <div id="previewContent" class="preview-content"></div>
+      <div class="preview-actions">
+        <a id="downloadBtn" class="btn" href="#" download>Download</a>
+        <button id="openNewTab" class="btn secondary">Open in new tab</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
