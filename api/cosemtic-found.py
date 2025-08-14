@@ -1,35 +1,63 @@
+from http.server import BaseHTTPRequestHandler
 import os
 import json
-import requests
+import sys
+import urllib.request
 
-KV_REST_API_URL = os.environ["KV_REST_API_URL"]
-KV_REST_API_TOKEN = os.environ["KV_REST_API_TOKEN"]
+KV_URL = os.environ.get("KV_REST_API_URL")
+KV_TOKEN = os.environ.get("KV_REST_API_TOKEN")
 
-def handler(request):
-    if request.method != "POST":
-        return {
-            "statusCode": 405,
-            "body": json.dumps({"error": "Method not allowed"})
-        }
-    
-    try:
-        data = json.loads(request.body.decode())
-        code = data.get("code")
-        item = data.get("item")
-        
-        if not code or not item:
-            return {
-                "statusCode": 400,
-                "body": json.dumps({"error": "Missing 'code' or 'item'"})
-            }
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"status": "API is running"}).encode())
 
-        # Store in KV with the code as key and item as value
-        r = requests.put(
-            f"{KV_REST_API_URL}/set/{code}",
-            headers={"Authorization": f"Bearer {KV_REST_API_TOKEN}"},
-            json={"value": item}
-        )
-        
-        return {
-            "statusCode": 200,
-            "b
+    def do_POST(self):
+        try:
+            # Read incoming JSON
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data)
+
+            cosmetic_name = data.get("cosmetic")
+            if not cosmetic_name:
+                raise ValueError("Missing 'cosmetic' in request body")
+
+            # Store in Upstash Redis
+            if not KV_URL or not KV_TOKEN:
+                raise ValueError("KV_REST_API_URL or KV_REST_API_TOKEN not set")
+
+            payload = json.dumps({"cosmetic": cosmetic_name}).encode()
+            req = urllib.request.Request(
+                f"{KV_URL}/set/{cosmetic_name}",
+                data=payload,
+                headers={
+                    "Authorization": f"Bearer {KV_TOKEN}",
+                    "Content-Type": "application/json"
+                },
+                method="POST"
+            )
+
+            with urllib.request.urlopen(req) as resp:
+                redis_response = resp.read().decode()
+
+            # Log to Vercel logs
+            print(f"Stored cosmetic: {cosmetic_name}", file=sys.stdout)
+
+            # Respond success
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "success": True,
+                "stored": cosmetic_name,
+                "redis_response": redis_response
+            }).encode())
+
+        except Exception as e:
+            self.send_response(500)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode())
