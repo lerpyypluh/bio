@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Discord Webhook Sender</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #282846);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background: rgba(40, 40, 60, 0.9);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.4);
+      width: 400px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #9b9bff;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      background: #5865F2;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #4752C4;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Discord Webhook Sender</h1>
+    <input type="text" id="webhookInput" placeholder="Enter your Webhook URL">
+    <input type="text" id="messageInput" placeholder="Enter your message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    function sendMessage() {
+      const webhookUrl = document.getElementById("webhookInput").value;
+      const message = document.getElementById("messageInput").value;
+
+      if (!webhookUrl || !message) {
+        alert("Please enter both webhook URL and a message.");
+        return;
+      }
+
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: message }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        console.log('Message sent successfully!');
+        alert('Message sent!');
+      })
+      .catch(error => {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Check console for details.');
+      });
+    }
+  </script>
+</body>
+</html>
