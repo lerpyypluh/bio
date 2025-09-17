@@ -3,11 +3,16 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>teeno.xyz | drive — access tons of cool files uploaded by Lerpy.</title>
-<link rel="stylesheet" href="/global/style.css" />
+<title>teeno.xyz | Drive — access files uploaded by Teeno</title>
 <style>
 /* Hide default cursor */
-body, * { cursor: none !important; }
+body, * { cursor: none !important; margin: 0; padding: 0; font-family: sans-serif; background: #111; color: #fff; }
+
+/* Header */
+header { text-align: center; padding: 20px 0; }
+header h1 a { color: #6c63ff; text-decoration: none; font-size: 2rem; }
+nav a { margin: 0 10px; color: #fff; text-decoration: none; }
+nav a:hover { color: #6c63ff; }
 
 /* File list container */
 #file-list { 
@@ -18,17 +23,10 @@ body, * { cursor: none !important; }
   border-radius: 10px; 
   padding: 25px; 
   text-align: left; 
-  animation: fadeIn 1s ease forwards; 
 }
 
 /* Individual items */
-.item { 
-  display: flex; 
-  align-items: center; 
-  padding: 8px 12px; 
-  border-radius: 5px; 
-  transition: background 0.2s ease; 
-}
+.item { display: flex; align-items: center; padding: 8px 12px; border-radius: 5px; transition: background 0.2s ease; }
 .item:hover { background: #1f1f1f; }
 
 /* Folder style */
@@ -64,43 +62,68 @@ button.copy-btn {
 }
 button.copy-btn:hover { color: #6c63ff; }
 
-/* Header and navigation */
-header { text-align: center; margin-top: 20px; }
-header h1 a { color: #6c63ff; text-decoration: none; }
-nav a { margin: 0 10px; color: #fff; text-decoration: none; }
-nav a:hover { color: #6c63ff; }
+/* Footer */
+footer { text-align:center; margin:40px 0; color:#aaa; }
+footer a { color:#6c63ff; text-decoration:none; }
+footer a:hover { text-decoration: underline; }
+
+/* Custom cursor */
+.cursor-circle {
+  position: fixed;
+  width: 15px;
+  height: 15px;
+  background: #6c63ff;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
 </style>
 </head>
 <body>
+
+<header>
+  <h1><a href="https://teeno.xyz">teeno.xyz</a></h1>
+  <nav>
+    <a href="/">🏠 Home</a>
+    <a href="/about/">🧃 About</a>
+    <a href="/tools/">🛠 Tools</a>
+    <a href="/fun/">🎉 Fun</a>
+    <a href="/products/">💻 Products</a>
+    <a href="/drive/">🗄️ Drive</a>
+    <a href="/archive/">💀 Archived</a>
+  </nav>
+</header>
 
 <main>
   <div id="file-list">Loading files...</div>
 </main>
 
-<footer style="text-align:center; margin:40px 0; color:#aaa;">
-  Built with ✨ by <a href="https://github.com/lerpyypluh" target="_blank" rel="nofollow noopener noreferrer" style="color:#6c63ff;">Lerpy</a>
+<footer>
+  Built with ✨ by <a href="https://github.com/lerpyypluh" target="_blank" rel="nofollow noopener noreferrer">Teeno</a>
 </footer>
 
 <div class="cursor-circle" id="cursor"></div>
 
 <script>
+// Custom cursor
 const cursor = document.getElementById('cursor');
 document.addEventListener('mousemove', e => {
   cursor.style.left = e.clientX + 'px';
   cursor.style.top = e.clientY + 'px';
 });
 
+// Copy link to clipboard
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => alert(`Copied: ${text}`));
 }
 
-// Customize your GitHub repository
+// GitHub repo info
 const owner = "lerpyypluh";
-const repo = "lerpy-drive";
+const repo = "bio";
 const fileList = document.getElementById("file-list");
 
 // Recursive fetch function
-async function fetchContents(path = "storage", container) {
+async function fetchContents(path = "drive", container) {
   try {
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
     if (!response.ok) throw new Error(`Failed to fetch files at path: ${path}`);
@@ -159,10 +182,10 @@ async function fetchContents(path = "storage", container) {
   }
 }
 
+// Start fetching from /drive folder
 fileList.innerHTML = "";
-fetchContents("storage", fileList);
+fetchContents("drive", fileList);
 </script>
 
-<script src="/global/snow.js"></script>
 </body>
 </html>
