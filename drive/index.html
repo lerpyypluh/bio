@@ -1,79 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>teeno.xyz | Drive</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="images/favicon.png" type="image/png">
 <style>
-/* === General Reset & Body === */
-* { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-body { font-family: 'Poppins', sans-serif; background: #0c0c0c; color: #fff; }
-
-/* === Header === */
-header { text-align: center; padding: 40px 20px; }
-header h1 a { font-size: 3rem; color: #8f8cff; text-decoration: none; transition: 0.3s; }
-header h1 a:hover { color: #6c63ff; }
-nav { margin-top: 15px; }
-nav a { margin: 0 15px; color: #fff; text-decoration: none; font-weight: 500; transition: 0.3s; }
-nav a:hover { color: #6c63ff; }
-
-/* === File list container === */
+/* Drive page overrides */
 #file-list {
-  max-width: 1000px;
-  margin: 50px auto;
-  background: #111;
-  border: 2px solid #222;
-  border-radius: 15px;
+  max-width: 800px;
+  margin: 40px auto 0;
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
   padding: 30px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  backdrop-filter: blur(12px);
 }
 
-/* === Individual items === */
 .item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: all 0.3s ease;
-  background: #111;
+  background: rgba(255,255,255,0.02);
 }
-.item:hover { background: #1a1a1a; transform: translateX(3px); }
+.item:hover {
+  background: rgba(110,231,255,0.15);
+  transform: translateX(3px);
+}
 
-/* === Folder style === */
-.folder { font-weight: bold; cursor: pointer; color: #6c63ff; flex: 1; }
-.folder::before { content: "📁 "; margin-right: 8px; }
+.folder { font-weight:600; cursor:pointer; color:var(--neon); flex:1; }
+.folder::before { content: "📁 "; margin-right:8px; }
+.file { flex:1; color:var(--text); }
+.file::before { content: "📄 "; margin-right:8px; }
 
-/* === File style === */
-.file { color: #fff; flex: 1; }
-.file::before { content: "📄 "; margin-right: 8px; }
-
-/* === Download link & copy button === */
 .download-link, .copy-btn {
-  margin-left: 10px;
-  text-decoration: none;
-  font-size: 0.9rem;
-  color: #8f8cff;
-  transition: 0.3s;
+  margin-left:10px;
+  text-decoration:none;
+  font-size:0.9rem;
+  color:var(--neon);
+  transition:0.3s;
 }
-.download-link:hover, .copy-btn:hover { color: #6c63ff; cursor: pointer; }
+.download-link:hover, .copy-btn:hover { color: var(--accent); cursor:pointer; }
+.subfolder { margin-left:25px; display:flex; flex-direction:column; gap:6px; }
 
-/* === Subfolders === */
-.subfolder { margin-left: 25px; display: flex; flex-direction: column; gap: 6px; }
-
-/* === Footer === */
-footer { text-align: center; padding: 40px 20px; font-size: 0.9rem; color: #aaa; }
-footer a { color: #8f8cff; text-decoration: none; transition: 0.3s; }
-footer a:hover { color: #6c63ff; text-decoration: underline; }
-
-/* === Custom cursor === */
+/* Custom cursor */
 .cursor-circle {
   position: fixed;
   width: 20px;
   height: 20px;
-  background: #6c63ff;
+  background: var(--neon);
   border-radius: 50%;
   pointer-events: none;
   transform: translate(-50%, -50%);
@@ -82,44 +68,53 @@ footer a:hover { color: #6c63ff; text-decoration: underline; }
 }
 </style>
 </head>
-<body>
+<body data-name="- teeno -" data-tagline="Producer • Designer • Creator">
 
-<header>
-  <h1><a href="https://teeno.xyz">teeno.xyz</a></h1>
-  <nav>
-    <a href="/">🏠 Home</a>
-  </nav>
-</header>
+<div id="app">
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-<main>
-  <div id="file-list">Loading files...</div>
-</main>
+  <header class="corner-controls">
+    <button id="playPause" class="icon-btn" aria-label="Toggle music">⏵</button>
+    <a class="icon-btn" href="/" aria-label="Home">⍟</a>
+  </header>
 
-<footer>
-  Built with ✨ by <a href="https://github.com/lerpyypluh" target="_blank" rel="nofollow noopener noreferrer">Teeno</a>
-</footer>
+  <main class="hero">
+    <div class="hero-inner">
+      <div class="profile-wrap">
+        <div class="neon-ring"></div>
+        <img src="images/profile.png" alt="Profile" class="profile">
+      </div>
 
-<div class="cursor-circle" id="cursor"></div>
+      <div class="text">
+        <h1 id="name">- teeno -</h1>
+        <p id="tagline">Producer • Designer • Creator</p>
+      </div>
+    </div>
+
+    <!-- Drive file list -->
+    <div id="file-list">Loading files...</div>
+  </main>
+
+  <footer>
+    Built with ✨ by <a href="https://github.com/lerpyypluh" target="_blank">Teeno</a>
+  </footer>
+
+  <div class="cursor-circle" id="cursor"></div>
+</div>
 
 <script>
-// === Custom Cursor ===
+// Custom cursor
 const cursor = document.getElementById('cursor');
 document.addEventListener('mousemove', e => {
   cursor.style.left = e.clientX + 'px';
   cursor.style.top = e.clientY + 'px';
 });
 
-// === Copy file URL ===
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => alert(`Copied: ${text}`));
-}
-
-// === GitHub repo info ===
+// GitHub /drive fetch
 const owner = "lerpyypluh";
 const repo = "bio";
 const fileList = document.getElementById("file-list");
 
-// === Fetch /drive folder contents ===
 async function fetchContents(path = "drive", container) {
   try {
     const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
@@ -145,13 +140,12 @@ async function fetchContents(path = "drive", container) {
         container.appendChild(subContainer);
 
         let loaded = false;
-        const toggleFolder = () => {
+        el.addEventListener("click", () => {
           if(subContainer.style.display === "none") {
             subContainer.style.display = "flex";
             if(!loaded) { fetchContents(fullPath, subContainer); loaded = true; }
           } else subContainer.style.display = "none";
-        };
-        el.addEventListener("click", toggleFolder);
+        });
 
       } else if(item.type === "file") {
         el.classList.add("file");
@@ -166,7 +160,7 @@ async function fetchContents(path = "drive", container) {
         copyBtn.textContent = "🔗";
         copyBtn.className = "copy-btn";
         copyBtn.title = "Copy file URL";
-        copyBtn.addEventListener("click", () => copyToClipboard(item.download_url));
+        copyBtn.addEventListener("click", () => navigator.clipboard.writeText(item.download_url));
         el.appendChild(copyBtn);
 
         container.appendChild(el);
@@ -179,10 +173,11 @@ async function fetchContents(path = "drive", container) {
   }
 }
 
-// === Initialize ===
+// Initialize
 fileList.innerHTML = "";
 fetchContents("drive", fileList);
 </script>
 
+<script src="script.js" defer></script>
 </body>
 </html>
