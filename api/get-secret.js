@@ -4,7 +4,7 @@ export default function handler(req, res) {
   }
 
   // Your secret stored in Vercel environment variables
-  const secret = process.env.RELAY_SECRET;
+  const secret = process.env.VERCEL_RELAY_SECRET;
 
   if (!secret) {
     return res.status(500).json({ error: 'Secret not set' });
