@@ -1,46 +1,43 @@
-// File: api/forward.js
-// Simple Vercel serverless function that validates a secret header and forwards JSON to a Discord webhook.
-// Env vars required: DISCORD_WEBHOOK_URL, VERCEL_RELAY_SECRET
+// forward.js
+const express = require("express");
+const fetch = require("node-fetch"); // npm install node-fetch@2
+const app = express();
+app.use(express.json());
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
+const PORT = process.env.PORT || 3000;
 
-  // Verify secret header
-  const clientSecret = req.headers["x-relay-secret"];
-  const EXPECTED_SECRET = process.env.VERCEL_RELAY_SECRET;
-  if (!EXPECTED_SECRET || clientSecret !== EXPECTED_SECRET) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+// Get the target webhook URL from Vercel secret
+const TARGET_WEBHOOK = process.env.TARGET_WEBHOOK; // set this in Vercel
 
-  // Validate JSON body
-  const body = req.body;
-  if (!body || typeof body !== "object") {
-    return res.status(400).json({ error: "Invalid JSON body" });
-  }
+if (!TARGET_WEBHOOK) {
+  console.error("TARGET_WEBHOOK is not set in environment variables!");
+  process.exit(1);
+}
 
-  const webhookURL = process.env.DISCORD_WEBHOOK_URL;
-  if (!webhookURL) {
-    return res.status(500).json({ error: "Server misconfiguration: missing webhook url" });
-  }
-
+app.post("/api/forward", async (req, res) => {
   try {
-    const discordRes = await fetch(webhookURL, {
+    const payload = req.body;
+
+    console.log("Received payload:", payload); // optional debug log
+
+    const response = await fetch(TARGET_WEBHOOK, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload)
     });
 
-    if (!discordRes.ok) {
-      const text = await discordRes.text();
-      return res.status(502).json({ error: "Discord webhook error", status: discordRes.status, body: text });
+    if (!response.ok) {
+      console.error("Failed to forward payload:", response.statusText);
+      return res.status(500).json({ status: "error", message: "Failed to forward payload" });
     }
 
-    return res.status(200).json({ success: true });
-  } catch (err) {
-    console.error("Forward error:", err);
-    return res.status(500).json({ error: "Forward failed", message: err.message });
+    res.json({ status: "success", message: "Payload forwarded" });
+  } catch (error) {
+    console.error("Error in /forward:", error);
+    res.status(500).json({ status: "error", message: error.message });
   }
-}
+});
+
+app.listen(PORT, () => {
+  console.log(`Forward API running on port ${PORT}`);
+});
