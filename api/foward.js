@@ -1,43 +1,34 @@
-// forward.js
-const express = require("express");
-const fetch = require("node-fetch"); // npm install node-fetch@2
-const app = express();
-app.use(express.json());
+// api/foward.js
+import fetch from "node-fetch";
 
-const PORT = process.env.PORT || 3000;
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-// Get the target webhook URL from Vercel secret
-const TARGET_WEBHOOK = process.env.TARGET_WEBHOOK; // set this in Vercel
+  const webhookURL = process.env.WEBHOOK_URL;
+  if (!webhookURL) {
+    return res.status(500).json({ error: "WEBHOOK_URL not configured" });
+  }
 
-if (!TARGET_WEBHOOK) {
-  console.error("TARGET_WEBHOOK is not set in environment variables!");
-  process.exit(1);
-}
-
-app.post("/api/forward", async (req, res) => {
   try {
-    const payload = req.body;
+    const body = await req.json();
 
-    console.log("Received payload:", payload); // optional debug log
-
-    const response = await fetch(TARGET_WEBHOOK, {
+    // Forward the payload to the Discord webhook
+    const response = await fetch(webhookURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
-      console.error("Failed to forward payload:", response.statusText);
-      return res.status(500).json({ status: "error", message: "Failed to forward payload" });
+      const text = await response.text();
+      return res.status(response.status).json({ error: text });
     }
 
-    res.json({ status: "success", message: "Payload forwarded" });
-  } catch (error) {
-    console.error("Error in /forward:", error);
-    res.status(500).json({ status: "error", message: error.message });
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error("Error forwarding webhook:", err);
+    res.status(500).json({ error: err.message });
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Forward API running on port ${PORT}`);
-});
+}
