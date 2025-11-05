@@ -127,7 +127,7 @@ async function fetchContents(path = "drive", container) {
       const fullPath = item.path;
       el.dataset.path = fullPath;
 
-      if(item.type === "dir") {
+      if (item.type === "dir") {
         el.classList.add("folder");
         const folderName = document.createElement("span");
         folderName.textContent = item.name;
@@ -141,21 +141,55 @@ async function fetchContents(path = "drive", container) {
 
         let loaded = false;
         el.addEventListener("click", () => {
-          if(subContainer.style.display === "none") {
+          if (subContainer.style.display === "none") {
             subContainer.style.display = "flex";
-            if(!loaded) { fetchContents(fullPath, subContainer); loaded = true; }
+            if (!loaded) { fetchContents(fullPath, subContainer); loaded = true; }
           } else subContainer.style.display = "none";
         });
 
-      } else if(item.type === "file") {
+      } else if (item.type === "file") {
         el.classList.add("file");
-        const link = document.createElement("a");
-        link.href = item.download_url;
-        link.textContent = item.name;
-        link.target = "_blank";
-        link.className = "download-link";
-        el.appendChild(link);
 
+        const ext = item.name.split('.').pop().toLowerCase();
+        const videoFormats = ["mp4", "webm", "mov", "ogg", "mkv"];
+
+        const fileName = document.createElement("span");
+        fileName.textContent = item.name;
+        el.appendChild(fileName);
+
+        if (videoFormats.includes(ext)) {
+          // Create inline video player
+          const video = document.createElement("video");
+          video.src = item.download_url;
+          video.controls = true;
+          video.style.maxWidth = "100%";
+          video.style.marginTop = "10px";
+          video.style.borderRadius = "12px";
+          video.preload = "metadata";
+
+          // Toggle play/pause on click
+          video.addEventListener("click", () => {
+            if (video.paused) video.play();
+            else video.pause();
+          });
+
+          const videoContainer = document.createElement("div");
+          videoContainer.style.display = "flex";
+          videoContainer.style.flexDirection = "column";
+          videoContainer.style.gap = "8px";
+          videoContainer.appendChild(video);
+          el.appendChild(videoContainer);
+        } else {
+          // Regular file link
+          const link = document.createElement("a");
+          link.href = item.download_url;
+          link.textContent = "Open";
+          link.target = "_blank";
+          link.className = "download-link";
+          el.appendChild(link);
+        }
+
+        // Copy URL button
         const copyBtn = document.createElement("button");
         copyBtn.textContent = "🔗";
         copyBtn.className = "copy-btn";
@@ -167,7 +201,7 @@ async function fetchContents(path = "drive", container) {
       }
     }
 
-  } catch(err) {
+  } catch (err) {
     container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
     console.error(err);
   }
