@@ -1,21 +1,25 @@
-import { Redis } from '@upstash/redis'
+// api/heartbeat.js
+let activeUsers = new Map(); // userId => lastPing timestamp
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-})
+export default function handler(req, res) {
+  const now = Date.now();
 
-export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { id } = req.body
-    await redis.set(id, Date.now(), { ex: 60 }) // key expires after 60 seconds
-    return res.status(200).json({ status: 'ok' })
+    const { id } = req.body;
+    if (!id) return res.status(400).json({ error: 'Missing id' });
+
+    activeUsers.set(id, now); // mark user as active
+    return res.status(200).json({ status: 'ok' });
   }
 
   if (req.method === 'GET') {
-    const keys = await redis.keys('*')
-    return res.status(200).json({ activeUsers: keys.length })
+    // Remove users inactive for 60 seconds
+    for (const [id, lastPing] of activeUsers.entries()) {
+      if (now - lastPing > 60_000) activeUsers.delete(id);
+    }
+
+    return res.status(200).json({ activeUsers: activeUsers.size });
   }
 
-  res.status(405).end()
+  res.status(405).end();
 }
