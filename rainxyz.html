@@ -1,71 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rain Mod Menu</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rain Menu</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+
   <style>
     @font-face {
       font-family: 'Minecraftia';
       src: url('fonts/Minecraftia.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
     }
-
-    .minecraft-font {
-      font-family: 'Minecraftia', sans-serif !important;
+    body {
+      font-family: 'Minecraftia', sans-serif;
+    }
+    .hero-bg {
+      background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('images/hero.png');
+      background-size: cover;
+      background-position: center;
     }
   </style>
 </head>
-<body class="minecraft-font bg-gray-900 text-white flex flex-col items-center p-8">
 
-  <header class="text-center mt-10">
-    <h1 class="text-5xl font-bold mb-4">Rain Mod Menu</h1>
-    <p class="text-lg opacity-80">A clean, powerful Gorilla Tag mod menu.</p>
-    <img src="images/modmenu-preview.png" alt="Mod Menu Preview" class="mt-6 rounded-2xl shadow-lg max-w-full">
-  </header>
+<body class="bg-black text-white">
 
-  <section class="mt-16 grid md:grid-cols-3 gap-6 w-full max-w-5xl">
-    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
-      <h2 class="text-2xl font-semibold mb-2">Features</h2>
-      <p class="opacity-80">Fast, stable, and packed with unique tools for players.</p>
-      <img src="images/features.png" alt="Features" class="mt-4 rounded-xl">
-    </div>
+  <!-- HERO SECTION -->
+  <section class="hero-bg h-screen flex flex-col justify-center items-center text-center px-4">
+    <h1 class="text-6xl font-bold mb-6">RAIN MENU</h1>
+    <p class="text-xl opacity-90 max-w-2xl">A clean, stylish, and powerful tool — built for creativity, customization, and fun.</p>
 
-    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
-      <h2 class="text-2xl font-semibold mb-2">Undetectability</h2>
-      <p class="opacity-80">Designed to stay safe while using mods, minimizing detection risk.</p>
-      <img src="images/undetectable.png" alt="Undetectable" class="mt-4 rounded-xl">
-    </div>
-
-    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
-      <h2 class="text-2xl font-semibold mb-2">Easy Setup</h2>
-      <p class="opacity-80">Works smoothly with your current modding workflow.</p>
-      <img src="images/setup.png" alt="Setup" class="mt-4 rounded-xl">
+    <div class="mt-10 flex gap-6">
+      <a href="#download" class="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-xl text-lg">Download</a>
+      <a href="#features" class="px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl text-lg">Learn More</a>
     </div>
   </section>
 
-  <section class="mt-16">
-    <a href="download/ModMenu.zip" class="px-8 py-3 bg-blue-500 rounded-2xl text-lg font-semibold hover:bg-blue-600 transition">Download</a>
-  </section>
-
-  <section class="mt-16 w-full max-w-3xl">
-    <h2 class="text-3xl font-bold mb-6 text-center">User Reviews</h2>
-    <div class="space-y-6">
-      <div class="bg-gray-800 p-4 rounded-xl shadow">
-        <p>"This mod menu is amazing! Super stable and easy to use." - Player1</p>
+  <!-- FEATURES SECTION -->
+  <section id="features" class="py-20 px-6 max-w-6xl mx-auto">
+    <h2 class="text-4xl font-bold text-center mb-12">FEATURES</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="bg-gray-900 p-8 rounded-2xl shadow-xl text-center">
+        <img src="images/feature1.png" class="mx-auto mb-4 rounded-xl" />
+        <h3 class="text-2xl mb-2">Smooth UI</h3>
+        <p class="opacity-80">Clean design inspired by premium menu styles.</p>
       </div>
-      <div class="bg-gray-800 p-4 rounded-xl shadow">
-        <p>"Best Gorilla Tag mod experience I've had." - Player2</p>
+      <div class="bg-gray-900 p-8 rounded-2xl shadow-xl text-center">
+        <img src="images/feature2.png" class="mx-auto mb-4 rounded-xl" />
+        <h3 class="text-2xl mb-2">Safe & Stable</h3>
+        <p class="opacity-80">Built with reliability and performance in mind.</p>
       </div>
-      <div class="bg-gray-800 p-4 rounded-xl shadow">
-        <p>"Highly recommend to anyone wanting more fun in-game!" - Player3</p>
+      <div class="bg-gray-900 p-8 rounded-2xl shadow-xl text-center">
+        <img src="images/feature3.png" class="mx-auto mb-4 rounded-xl" />
+        <h3 class="text-2xl mb-2">Customizable</h3>
+        <p class="opacity-80">Easily change visuals, sounds, and layout.</p>
       </div>
     </div>
   </section>
 
-  <footer class="mt-20 opacity-60">© 2025 Rain Mod Menu</footer>
+  <!-- SHOWCASE SECTION -->
+  <section class="bg-gray-950 py-20 px-6">
+    <h2 class="text-4xl font-bold text-center mb-12">SHOWCASE</h2>
+    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+      <img src="images/show1.png" class="rounded-xl shadow-xl" />
+      <img src="images/show2.png" class="rounded-xl shadow-xl" />
+    </div>
+  </section>
+
+  <!-- DOWNLOAD SECTION -->
+  <section id="download" class="py-20 px-6 text-center">
+    <h2 class="text-4xl font-bold mb-6">DOWNLOAD</h2>
+    <p class="opacity-80 mb-10">Get the latest version below.</p>
+    <a href="download/RainMenu.zip" class="px-10 py-4 bg-blue-500 hover:bg-blue-600 rounded-xl text-xl">Download Now</a>
+  </section>
+
+  <!-- REVIEWS SECTION -->
+  <section class="bg-gray-900 py-20 px-6">
+    <h2 class="text-4xl font-bold text-center mb-12">REVIEWS</h2>
+    <div class="max-w-3xl mx-auto space-y-6">
+      <div class="bg-gray-800 p-6 rounded-xl shadow-xl">“Rain Menu looks clean and runs super smooth.” – User1</div>
+      <div class="bg-gray-800 p-6 rounded-xl shadow-xl">“Love the UI style. Easily one of the nicest menus visually.” – User2</div>
+      <div class="bg-gray-800 p-6 rounded-xl shadow-xl">“The customization is insane. 10/10.” – User3</div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="py-10 text-center opacity-60">© 2025 Rain Menu</footer>
 
 </body>
 </html>
