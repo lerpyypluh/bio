@@ -3,88 +3,155 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rain Menu</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-
+  <title>Rain.xyz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
   <style>
-    @font-face {
-      font-family: 'Minecraftia';
-      src: url('fonts/Minecraftia.ttf') format('truetype');
+    html {
+      scroll-behavior: smooth;
     }
     body {
-      font-family: 'Minecraftia', sans-serif;
+      font-family: 'Orbitron', sans-serif;
+      background: #0f0f0f;
+      color: white;
     }
-    .hero-bg {
-      background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('images/hero.png');
-      background-size: cover;
-      background-position: center;
+    .text {
+      color: #00a9dd;
+      text-shadow: 0 0 10px #007ce2, 0 0 20px #004da5;
+    }
+    .thing {
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .thing:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(0, 153, 255, 0.2);
+      border-color: rgba(0, 153, 255, 0.2);
+    }
+    .thing1 {
+      backdrop-filter: blur(2px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .thing1:hover {
+      transform: scale(1.002);
+      box-shadow: 0 0 20px rgba(0, 125, 156, 0.3);
+      border-color: rgba(0, 125, 156, 0.3);
+    }
+    .download {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .download:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(0, 60, 255, 0.4);
+    }
+    .discord {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .discord:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(114, 137, 218, 0.4);
     }
   </style>
 </head>
+<body class="text-white">
+  <div id="tsparticles" class="fixed inset-0 -z-10"></div>
 
-<body class="bg-black text-white">
+  <nav class="fixed top-0 left-0 w-full bg-[#0c0c0c] bg-opacity-10 backdrop-blur border-b border-gray-800 z-50">
+    <div class="flex px-6 py-3">
+      <ul class="flex ml-auto space-x-2 md:text-base">
+        <a href="#discord" class="thing hover:bg-[#FFFFFF0D] rounded-xl px-4 py-1">Discord</a></li>
+        <a href="#download" class="thing hover:bg-[#FFFFFF0D] rounded-xl px-4 py-1">Download</a></li>
+        <a href="#features" class="thing hover:bg-[#FFFFFF0D] rounded-xl px-4 py-1">Features</a></li>
+      </ul>
+  </nav>
 
-  <!-- HERO SECTION -->
-  <section class="hero-bg h-screen flex flex-col justify-center items-center text-center px-4">
-    <h1 class="text-6xl font-bold mb-6">RAIN MENU</h1>
-    <p class="text-xl opacity-90 max-w-2xl">A clean, stylish, and powerful tool — built for creativity, customization, and fun.</p>
-
-    <div class="mt-10 flex gap-6">
-      <a href="#download" class="px-8 py-3 bg-blue-500 hover:bg-blue-600 rounded-xl text-lg">Download</a>
-      <a href="#features" class="px-8 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl text-lg">Learn More</a>
-    </div>
+  <section class="text-center mt-24">
+    <h1 class="text-5xl md:text-7xl font-bold text">Rain.xyz</h1>
+    <p class="mt-3 text-lg text-gray-300">The Future Of Gorilla Tag Modding.</p>
   </section>
 
-  <!-- FEATURES SECTION -->
-  <section id="features" class="py-20 px-6 max-w-6xl mx-auto">
-    <h2 class="text-4xl font-bold text-center mb-12">FEATURES</h2>
-    <div class="grid md:grid-cols-3 gap-8">
-      <div class="bg-gray-900 p-8 rounded-2xl shadow-xl text-center">
-        <img src="images/feature1.png" class="mx-auto mb-4 rounded-xl" />
-        <h3 class="text-2xl mb-2">Smooth UI</h3>
-        <p class="opacity-80">Clean design inspired by premium menu styles.</p>
+  <section id="features" class="py-20 max-w-6xl mx-auto">
+    <h2 class="text md:text-4xl font-bold text-center mb-12">Key Features</h2>
+    <div class="grid md:grid-cols-3 gap-8 text-center">
+
+      <div class="thing bg-[#FFFFFF0D] p-6 rounded-xl">
+        <h3 class="text-xl font-semibold text-blue-400">Sleek UI</h3>
+        <p class="text-gray-300 mt-2">Enjoy a sleek interface that is completely unique.</p>
       </div>
-      <div class="bg-gray-900 p-8 rounded-2xl shadow-xl text-center">
-        <img src="images/feature2.png" class="mx-auto mb-4 rounded-xl" />
-        <h3 class="text-2xl mb-2">Safe & Stable</h3>
-        <p class="opacity-80">Built with reliability and performance in mind.</p>
+
+      <div class="thing bg-[#FFFFFF0D] p-6 rounded-xl">
+        <h3 class="text-xl font-semibold text-blue-400">Optimization</h3>
+        <p class="text-gray-300 mt-2">Enjoy little to no lag so you can have the smoothest modding experience.</p>
       </div>
-      <div class="bg-gray-900 p-8 rounded-2xl shadow-xl text-center">
-        <img src="images/feature3.png" class="mx-auto mb-4 rounded-xl" />
-        <h3 class="text-2xl mb-2">Customizable</h3>
-        <p class="opacity-80">Easily change visuals, sounds, and layout.</p>
+
+      <div class="thing bg-[#FFFFFF0D] p-6 rounded-xl">
+        <h3 class="text-xl font-semibold text-blue-400">Reliability</h3>
+        <p class="text-gray-300 mt-2">Rain will have frequent updates ensuring your safety.</p>
+      </div>
+
+      <div class="thing bg-[#FFFFFF0D] p-7 rounded-xl">
+        <h3 class="text-xl font-semibold text-blue-400">Active Community</h3>
+        <p class="text-gray-300 mt-2">Unlike others, we listen to your suggestions and add what we can.</p>
+      </div>
+
+      <div class="thing bg-[#FFFFFF0D] p-6 rounded-xl">
+        <h3 class="text-xl font-semibold text-blue-400">Ease Of Use</h3>
+        <p class="text-gray-300 mt-2">Rain's unique UI allows you to get comfortable with using it fast.</p>
+      </div>
+
+      <div class="thing bg-[#FFFFFF0D] p-6 rounded-xl">
+        <h3 class="text-xl font-semibold text-blue-400">Undetected</h3>
+        <p class="text-gray-300 mt-2">Rain will be undetected with every update so you don’t get banned.</p>
       </div>
     </div>
   </section>
 
-  <!-- SHOWCASE SECTION -->
-  <section class="bg-gray-950 py-20 px-6">
-    <h2 class="text-4xl font-bold text-center mb-12">SHOWCASE</h2>
-    <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
-      <img src="images/show1.png" class="rounded-xl shadow-xl" />
-      <img src="images/show2.png" class="rounded-xl shadow-xl" />
-    </div>
+
+  <section id="download" class="thing1 bg-[#FFFFFF0D] py-10 px-6 text-center rounded-xl max-w-6xl mx-auto">
+    <h2 class="text-4xl font-bold text mb-6">Download Rain</h2>
+    <p class="text-gray-400 mb-6">Click the button below to download and use Rain!</p>
+    <a href="https://cdn.discordapp.com/attachments/1429493360032481295/1442228228558422068/Rain.xyz.dll?ex=6924ab34&is=692359b4&hm=baeec8bf7417dbbcf86e6f3c24900e7761435754b98b0d8d00d1c34556748e92&" class="download inline-block px-8 py-3 bg-blue-400 hover:bg-blue-300 text-black font-bold rounded-xl">Download Rain</a>
   </section>
 
-  <!-- DOWNLOAD SECTION -->
-  <section id="download" class="py-20 px-6 text-center">
-    <h2 class="text-4xl font-bold mb-6">DOWNLOAD</h2>
-    <p class="opacity-80 mb-10">Get the latest version below.</p>
-    <a href="download/RainMenu.zip" class="px-10 py-4 bg-blue-500 hover:bg-blue-600 rounded-xl text-xl">Download Now</a>
+  <section id="discord" class="thing1 bg-[#FFFFFF0D] py-10 px-6 text-center rounded-xl max-w-6xl mx-auto mt-12">
+    <h2 class="text-4xl font-bold text mb-4">Join Our Discord</h2>
+    <p class="text-gray-400 mb-6">Join our Discord server if you need help with the menu!</p>
+    <a href="https://discord.gg/edfyUgdZUA" target="_blank" class="discord inline-block px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl">Join Discord</a>
   </section>
 
-  <!-- REVIEWS SECTION -->
-  <section class="bg-gray-900 py-20 px-6">
-    <h2 class="text-4xl font-bold text-center mb-12">REVIEWS</h2>
-    <div class="max-w-3xl mx-auto space-y-6">
-      <div class="bg-gray-800 p-6 rounded-xl shadow-xl">“Rain Menu looks clean and runs super smooth.” – User1</div>
-      <div class="bg-gray-800 p-6 rounded-xl shadow-xl">“Love the UI style. Easily one of the nicest menus visually.” – User2</div>
-      <div class="bg-gray-800 p-6 rounded-xl shadow-xl">“The customization is insane. 10/10.” – User3</div>
-    </div>
-  </section>
+  <footer class="mt-12 py-6 text-center text-gray-500 text-sm border-t border-gray-800">
+    &copy; 2025 Rain.xyz. Not affiliated with Gorilla Tag or Another Axiom.
+  </footer>
 
-  <!-- FOOTER -->
-  <footer class="py-10 text-center opacity-60">© 2025 Rain Menu</footer>
-
+  <script>
+    tsParticles.load("tsparticles", {
+      fullScreen: { enable: false },
+      background: { color: "#1a191a" },
+      particles: {
+        number: { value: 75 },
+        color: { value: "#47ace2" },
+        opacity: { value: 0.4 },
+        size: { value: 3 },
+        links: {
+          enable: true,
+          distance: 170,
+          color: "#47ace2",
+          opacity: 0.2,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 1.35,
+          outModes: { default: "bounce" }
+        }
+      },
+      interactivity: {
+        events: { onHover: { enable: true, mode: "grab" } },
+        grab: { distance: 170, line_linked: { opacity: 0.8 } },
+      }
+    });
+  </script>
 </body>
 </html>
