@@ -1,1 +1,110 @@
-
+{
+    "menu-version": "7.1.0",
+    "discord-invite": "",
+    "motd": "",
+    "admins": [
+        {
+            "name": "test",
+            "user-id": "73CF1D5A360AEA09"
+        },
+        {
+            "name": "Star",
+            "user-id": "5CB9F584B413BFD2"
+        },
+        {
+            "name": "Zest",
+            "user-id": "C0D5746834A26CF3"
+        },
+        {
+            "name": "Gandy",
+            "user-id": "AB652826C542E127"
+        },
+        {
+            "name": "JordanLovesPugs",
+            "user-id": "4680FD4101F322E2"
+        },
+        {
+            "name": "Lerpyy",
+            "user-id": "21572EC6C4BBFF11"
+        },
+        {
+            "name": "nikola",
+            "user-id": "946CA29407F95A67"
+        },
+        {
+            "name": "repr",
+            "user-id": "740E72E8F1A25D48"
+        },
+        {
+            "name": "goldentrophy",
+            "user-id": "63ABF99FF52170E8"
+        },
+        {
+            "name": "Kingofnetflix",
+            "user-id": "D1224ED693B6E5A"
+        },
+        {
+            "name": "Twig",
+            "user-id": "CCF469AD8D41E3F5"
+        },
+        {
+            "name": "industry",
+            "user-id": "4605B2A0900028E1"
+        },
+        {
+            "name": "libyyyreal",
+            "user-id": "2C7484982273DD6C"
+        },
+        {
+            "name": "tagdoesnothing",
+            "user-id": "3F2BC97303634F5D"
+        },
+        {
+            "name": "notskidder",
+            "user-id": "3333"
+        },
+        {
+            "name": "Ember",
+            "user-id": "DD07FD402D513D2E"
+        },
+        {
+            "name": "Cheemz",
+            "user-id": "DC6A35ED018AFA21"
+        },
+        {
+            "name": "bando",
+            "user-id": "B5AAO566DEE7C237"
+        },
+        {
+            "name": "Star",
+            "user-id": "A128AAD8F856C821"
+        },
+        {
+            "name": "Cha554",
+            "user-id": "955D9F5D9727A372"
+        },
+        {
+            "name": "bandookie",
+            "user-id": "B5AA0566DEE7C237"
+        },
+        {
+            "name": "lerperplurper",
+            "user-id": "EBF4D7AE3CD9E4E6"
+        }
+    ],
+    "super-admins": [
+        "goldentrophy",
+        "Twig",
+        "test",
+        "Lerpyy",
+        "lerperplurper"
+    ],
+    "blacklisted-ids": [
+        "7BDADB558EAFFC3F",
+        "F952FCCF8311B94A",
+        "87B859204D1624C4"
+    ],
+    "detected-mods": [
+        "Marcus"
+    ]
+}
