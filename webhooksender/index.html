@@ -1,127 +1,675 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>lerpy webhook sender thingy</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>webhook sender</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      color: white;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080807;
+      --surface:  #0f0f0d;
+      --surface2: #141410;
+      --border:   #1f1d17;
+      --text:     #f0e8d0;
+      --muted:    #5a5240;
+      --accent:   #c9a84c;
+      --accent2:  #e8c97a;
+      --danger:   #c94c4c;
+      --success:  #4cc97a;
+      --font-head: 'Unbounded', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --font-disp: 'Bebas Neue', sans-serif;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    /* ── Cursor ── */
+    .cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 34px; height: 34px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform .16s ease-out, opacity .2s;
+      opacity: .35;
+      mix-blend-mode: difference;
+    }
+
+    /* ── Grain ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: .04;
+      pointer-events: none;
+      z-index: 9990;
+    }
+
+    /* ── Canvas ── */
+    #bgCanvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      opacity: .55;
+    }
+
+    ::-webkit-scrollbar { width: 2px; }
+    ::-webkit-scrollbar-thumb { background: var(--accent); }
+
+    /* ── Card ── */
+    .card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 480px;
+      margin: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      animation: cardIn .6s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* gold top bar */
+    .card-bar {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+    }
+
+    .card-body { padding: 32px; }
+
+    /* ── Header ── */
+    .card-eyebrow {
+      font-size: .6rem;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-family: var(--font-disp);
+      font-size: 3.2rem;
+      letter-spacing: .06em;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 28px;
+    }
+
+    .card-title span { color: var(--accent); }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 14px; }
+
+    .field-label {
+      display: block;
+      font-size: .6rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .field input, .field textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      outline: none;
+      transition: border-color .2s, background .2s;
+      cursor: none;
+      resize: none;
+    }
+
+    .field input:focus, .field textarea:focus {
+      border-color: var(--accent);
+      background: #161612;
+    }
+
+    .field input::placeholder, .field textarea::placeholder {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Spam toggle row ── */
+    .spam-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface2);
+      margin-bottom: 14px;
+      transition: border-color .2s;
+    }
+    .spam-row.active { border-color: var(--danger); }
+
+    .toggle-wrap { flex-shrink: 0; }
+    .toggle {
+      position: relative;
+      width: 40px; height: 22px;
+      cursor: none;
+    }
+    .toggle input { display: none; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--border);
+      border-radius: 100px;
+      transition: background .2s;
+    }
+    .toggle input:checked ~ .toggle-track { background: var(--danger); }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      background: var(--muted);
+      border-radius: 50%;
+      transition: transform .2s, background .2s;
+    }
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(18px); background: #fff; }
+
+    .spam-labels { flex: 1; }
+    .spam-title {
+      font-size: .75rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .spam-badge {
+      font-size: .55rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(201,76,76,.18);
+      color: var(--danger);
+      border: 1px solid rgba(201,76,76,.3);
+    }
+    .spam-sub {
+      font-size: .62rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* spam count + delay */
+    .spam-controls {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .spam-controls.visible { display: grid; }
+
+    /* ── Buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface2);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: .7rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: all .2s;
+    }
+    .btn:hover { border-color: var(--muted); color: var(--text); }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--accent2);
+      transform: translateY(100%);
+      transition: transform .22s cubic-bezier(.22,1,.36,1);
+    }
+    .btn-primary:hover::before { transform: translateY(0); }
+    .btn-primary span { position: relative; z-index: 1; }
+    .btn-primary:hover { color: var(--bg); }
+    .btn-primary:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .btn-danger {
+      background: rgba(201,76,76,.12);
+      border-color: rgba(201,76,76,.35);
+      color: var(--danger);
+      display: none;
+    }
+    .btn-danger:hover { background: rgba(201,76,76,.22); border-color: var(--danger); }
+    .btn-danger.visible { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; padding: 13px 18px; }
+
+    /* ── Log ── */
+    .log-wrap {
+      margin-top: 20px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
       overflow: hidden;
     }
 
-    #particles-js {
-      position: absolute;
-      width: 100%;
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: .6rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .log-clear {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: .58rem;
+      letter-spacing: .1em;
+      cursor: none;
+      transition: color .2s;
+    }
+    .log-clear:hover { color: var(--danger); }
+
+    .log-body {
+      max-height: 160px;
+      overflow-y: auto;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-entry {
+      font-size: .7rem;
+      line-height: 1.4;
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      animation: slideDown .15s ease both;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .log-time { color: var(--muted); flex-shrink: 0; font-size: .62rem; }
+    .log-ok   { color: var(--success); }
+    .log-err  { color: var(--danger); }
+    .log-info { color: var(--accent); }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-wrap.visible { display: block; }
+    .progress-bar {
       height: 100%;
-      background: #0d0d1a;
-      z-index: -1;
+      background: linear-gradient(90deg, var(--accent3, var(--accent)), var(--accent));
+      width: 0%;
+      transition: width .1s linear;
     }
 
-    .container {
-      text-align: center;
-      background: rgba(40, 40, 60, 0.85);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.4);
-      width: 400px;
+    /* ── Footer ── */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 32px;
+      border-top: 1px solid var(--border);
+      font-size: .58rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
-    h1 {
-      margin-bottom: 20px;
-      font-size: 24px;
-      color: #9b9bff;
+    .status-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      margin-right: 6px;
+      animation: pulse 2s infinite;
     }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      font-size: 14px;
-    }
-
-    button {
-      margin-top: 15px;
-      padding: 12px 25px;
-      font-size: 16px;
-      border: none;
-      border-radius: 12px;
-      background: #5865F2;
-      color: white;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background: #4752C4;
-      transform: scale(1.05);
-    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
   </style>
 </head>
 <body>
-  <div id="particles-js"></div>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-  <div class="container">
-    <h1>Discord Webhook Sender</h1>
-    <input type="text" id="webhookInput" placeholder="Enter your Webhook URL">
-    <input type="text" id="messageInput" placeholder="Enter your message">
-    <button onclick="sendMessage()">Send</button>
+  <div class="card">
+    <div class="card-bar"></div>
+    <div class="card-body">
+
+      <div class="card-eyebrow">lerpy / tools</div>
+      <div class="card-title">WEBHOOK<br><span>SENDER</span></div>
+
+      <div class="field">
+        <label class="field-label" for="webhookInput">Webhook URL</label>
+        <input type="text" id="webhookInput" placeholder="https://discord.com/api/webhooks/..." autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="usernameInput">Username override <span style="color:var(--muted);font-size:.55rem">(optional)</span></label>
+        <input type="text" id="usernameInput" placeholder="e.g. tino bot">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="messageInput">Message</label>
+        <textarea id="messageInput" rows="3" placeholder="Enter your message..."></textarea>
+      </div>
+
+      <!-- Spam toggle -->
+      <div class="spam-row" id="spamRow">
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" id="spamToggle">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="spam-labels">
+          <div class="spam-title">
+            Spam mode
+            <span class="spam-badge">USE RESPONSIBLY</span>
+          </div>
+          <div class="spam-sub">Send the message multiple times with a delay</div>
+        </div>
+      </div>
+
+      <!-- Spam controls -->
+      <div class="spam-controls" id="spamControls">
+        <div class="field" style="margin:0">
+          <label class="field-label" for="spamCount">Count</label>
+          <input type="text" id="spamCount" placeholder="10" value="10">
+        </div>
+        <div class="field" style="margin:0">
+          <label class="field-label" for="spamDelay">Delay (ms)</label>
+          <input type="text" id="spamDelay" placeholder="500" value="500">
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn btn-danger" id="stopBtn" onclick="stopSpam()">■ Stop</button>
+        <button class="btn btn-primary" id="sendBtn" onclick="handleSend()">
+          <span id="sendLabel">Send</span>
+        </button>
+        <button class="btn" onclick="clearFields()">Clear</button>
+      </div>
+
+      <!-- Log -->
+      <div class="log-wrap" id="logWrap" style="display:none">
+        <div class="log-header">
+          <span>Log</span>
+          <button class="log-clear" onclick="clearLog()">Clear log</button>
+        </div>
+        <div class="log-body" id="logBody"></div>
+      </div>
+
+    </div>
+    <div class="card-footer">
+      <span><span class="status-dot"></span>Ready</span>
+      <span id="sentCount">Sent: 0</span>
+    </div>
   </div>
 
   <script>
-    function sendMessage() {
-      const webhookUrl = document.getElementById("webhookInput").value;
-      const message = document.getElementById("messageInput").value;
+    // ── Cursor ──
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    });
+    (function animRing() {
+      rx += (mx-rx)*.12; ry += (my-ry)*.12;
+      ring.style.left = rx+'px'; ring.style.top = ry+'px';
+      requestAnimationFrame(animRing);
+    })();
+    document.querySelectorAll('a,button,input,textarea,label').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.style.transform='translate(-50%,-50%) scale(2)'; ring.style.opacity='0'; });
+      el.addEventListener('mouseleave', () => { cursor.style.transform='translate(-50%,-50%) scale(1)'; ring.style.opacity='.35'; });
+    });
 
-      if (!webhookUrl || !message) {
-        alert("Please enter both webhook URL and a message.");
+    // ── Canvas ──
+    const canvas = document.getElementById('bgCanvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, parts = [];
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    class P {
+      constructor() { this.r(true); }
+      r(init) {
+        this.x = Math.random()*W; this.y = init ? Math.random()*H : H+10;
+        this.vy = -(Math.random()*.4+.1); this.vx = (Math.random()-.5)*.15;
+        this.s = Math.random()*1.5+.3; this.a = Math.random()*.3+.05;
+        this.c = Math.random()>.7?'#c9a84c':Math.random()>.5?'#e8c97a':'#f0e8d0';
+      }
+      u() { this.y+=this.vy; this.x+=this.vx; if(this.y<-10) this.r(false); }
+      d() { ctx.save(); ctx.globalAlpha=this.a; ctx.fillStyle=this.c; ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fill(); ctx.restore(); }
+    }
+    for(let i=0;i<100;i++) parts.push(new P());
+    (function loop() {
+      ctx.clearRect(0,0,W,H);
+      const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*.5);
+      g.addColorStop(0,'rgba(201,168,76,.04)'); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle='rgba(255,255,255,.015)'; ctx.lineWidth=1;
+      for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      parts.forEach(p=>{p.u();p.d();}); requestAnimationFrame(loop);
+    })();
+
+    // ── Spam toggle ──
+    const spamToggle   = document.getElementById('spamToggle');
+    const spamControls = document.getElementById('spamControls');
+    const spamRow      = document.getElementById('spamRow');
+    const sendLabel    = document.getElementById('sendLabel');
+
+    spamToggle.addEventListener('change', () => {
+      const on = spamToggle.checked;
+      spamControls.classList.toggle('visible', on);
+      spamRow.classList.toggle('active', on);
+      sendLabel.textContent = on ? 'Spam' : 'Send';
+    });
+
+    // ── Log ──
+    let sentTotal = 0;
+    function log(msg, type = 'info') {
+      const wrap = document.getElementById('logWrap');
+      const body = document.getElementById('logBody');
+      wrap.style.display = 'block';
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      const now = new Date();
+      const t = now.toLocaleTimeString('en-US', { hour12: false });
+      entry.innerHTML = `<span class="log-time">${t}</span><span class="log-${type}">${msg}</span>`;
+      body.appendChild(entry);
+      body.scrollTop = body.scrollHeight;
+    }
+    function clearLog() {
+      document.getElementById('logBody').innerHTML = '';
+      document.getElementById('logWrap').style.display = 'none';
+    }
+
+    // ── State ──
+    let spamRunning = false;
+    let spamAbort   = false;
+
+    function setProgress(pct) {
+      const wrap = document.getElementById('progressWrap');
+      const bar  = document.getElementById('progressBar');
+      wrap.classList.toggle('visible', pct > 0 && pct < 100);
+      bar.style.width = pct + '%';
+    }
+
+    function setSent(n) {
+      sentTotal += n;
+      document.getElementById('sentCount').textContent = 'Sent: ' + sentTotal;
+    }
+
+    function setLoading(on) {
+      const btn = document.getElementById('sendBtn');
+      const stop = document.getElementById('stopBtn');
+      btn.disabled = on;
+      sendLabel.textContent = on ? (spamToggle.checked ? 'Spamming…' : 'Sending…') : (spamToggle.checked ? 'Spam' : 'Send');
+      stop.classList.toggle('visible', on && spamToggle.checked);
+    }
+
+    function stopSpam() { spamAbort = true; }
+    function clearFields() {
+      document.getElementById('webhookInput').value = '';
+      document.getElementById('messageInput').value = '';
+      document.getElementById('usernameInput').value = '';
+    }
+
+    async function sendOne(url, payload) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return true;
+    }
+
+    async function handleSend() {
+      const url  = document.getElementById('webhookInput').value.trim();
+      const msg  = document.getElementById('messageInput').value.trim();
+      const user = document.getElementById('usernameInput').value.trim();
+
+      if (!url) { log('No webhook URL provided', 'err'); return; }
+      if (!msg) { log('No message provided', 'err'); return; }
+      if (!url.startsWith('https://discord.com/api/webhooks/') && !url.startsWith('https://discordapp.com/api/webhooks/')) {
+        log('URL doesn\'t look like a Discord webhook', 'err'); return;
+      }
+
+      const payload = { content: msg };
+      if (user) payload.username = user;
+
+      if (!spamToggle.checked) {
+        // single send
+        setLoading(true);
+        try {
+          await sendOne(url, payload);
+          log('Message sent ✓', 'ok');
+          setSent(1);
+        } catch(e) {
+          log('Failed: ' + e.message, 'err');
+        }
+        setLoading(false);
         return;
       }
 
-      fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: message }),
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok ' + response.statusText);
-        }
-        console.log('Message sent successfully!');
-        alert('Message sent!');
-      })
-      .catch(error => {
-        console.error('Error sending message:', error);
-        alert('Failed to send message. Check console for details.');
-      });
-    }
-  </script>
+      // spam mode
+      const count = parseInt(document.getElementById('spamCount').value) || 10;
+      const delay = parseInt(document.getElementById('spamDelay').value) || 500;
 
-  <!-- Particles.js library -->
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-  <script>
-    particlesJS("particles-js", {
-      "particles": {
-        "number": { "value": 100 },
-        "size": { "value": 3 },
-        "move": { "speed": 2 },
-        "line_linked": { "enable": true, "opacity": 0.2 },
-        "opacity": { "value": 0.5 }
-      },
-      "interactivity": {
-        "events": {
-          "onhover": { "enable": true, "mode": "repulse" }
+      if (count > 500) { log('Max count is 500', 'err'); return; }
+      if (delay < 200) { log('Min delay is 200ms (be nice)', 'err'); return; }
+
+      spamAbort = false;
+      spamRunning = true;
+      setLoading(true);
+      log(`Starting spam: ${count}× every ${delay}ms`, 'info');
+
+      let sent = 0, failed = 0;
+      for (let i = 0; i < count; i++) {
+        if (spamAbort) { log(`Stopped at ${sent}/${count}`, 'info'); break; }
+        try {
+          await sendOne(url, payload);
+          sent++;
+          setSent(1);
+          setProgress(Math.round((i+1)/count*100));
+          log(`[${i+1}/${count}] Sent ✓`, 'ok');
+        } catch(e) {
+          failed++;
+          log(`[${i+1}/${count}] Failed: ${e.message}`, 'err');
         }
+        if (i < count - 1 && !spamAbort) await new Promise(r => setTimeout(r, delay));
       }
+
+      log(`Done — ${sent} sent, ${failed} failed`, 'info');
+      setProgress(0);
+      setLoading(false);
+      spamRunning = false;
+    }
+
+    // Enter to send
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleSend();
     });
   </script>
 </body>
