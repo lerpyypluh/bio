@@ -1,0 +1,19 @@
+INSTRUCTIONS TO MODIFYING YOUR TI-84 Plus CE Calculator.
+
+Step one: Go to https://teeno.xyz/drive and download the file that says "YOU NEED THIS". This is the main application you need to manage the files of the calculator. 
+
+Step two: download and install the application to a windows computer.
+
+Step three: Plugin the calculator and press the button in the application that looks like 3 pieces of paper. 
+
+Step four: Download "arTIfiCE_v2.1.8xp", "cesium.zip" and "clibs.8xg". This are your core libs that you need to make the games work. 
+
+Step five: Extract the zipped files, and drag and drop them into the TI-84 application. (The 3 pages icon)
+
+Step Six: Unplug the calculator, go to the selection "CESIUM" in "prgm => TI-Basic => *A" and press enter. You have now installed the core libs. 
+
+Step seven: Plug in the calculator to your computer, Download any game you want from my site "teeno.xyz/drive" extract them, and drag and drop the main game file. Any time you see a game that comes with "clibs", we have already installed it, you can discard it. 
+
+Step 8: Unplug the calculator, go to the same directory "prgm => TI-Basic => *A" and press any game. The game should launch and your all set. These games require NO WIFI and you could play anywhere. 
+
+I will do research on getting ChatGPT on the calculator. That is coming in the future. Enjoy! 
