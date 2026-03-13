@@ -1,217 +1,777 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>teeno.xyz | Drive</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<link rel="icon" href="images/favicon.png" type="image/png">
-<style>
-/* Drive page overrides */
-#file-list {
-  max-width: 800px;
-  margin: 40px auto 0;
-  background: rgba(255,255,255,0.03);
-  border: 2px solid rgba(255,255,255,0.06);
-  border-radius: 20px;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  color: var(--text);
-  font-family: 'Space Grotesk', sans-serif;
-  backdrop-filter: blur(12px);
-}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>teeno.xyz | Drive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="icon" href="images/favicon.png" type="image/png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  background: rgba(255,255,255,0.02);
-}
-.item:hover {
-  background: rgba(110,231,255,0.15);
-  transform: translateX(3px);
-}
+    :root {
+      --bg:        #080807;
+      --surface:   #0f0f0d;
+      --surface2:  #141410;
+      --border:    #1f1d17;
+      --text:      #f0e8d0;
+      --muted:     #5a5240;
+      --accent:    #c9a84c;
+      --accent2:   #e8c97a;
+      --accent3:   #8a6e2f;
+      --font-head: 'Unbounded', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --font-disp: 'Bebas Neue', sans-serif;
+    }
 
-.folder { font-weight:600; cursor:pointer; color:var(--neon); flex:1; }
-.folder::before { content: "📁 "; margin-right:8px; }
-.file { flex:1; color:var(--text); }
-.file::before { content: "📄 "; margin-right:8px; }
+    html { scroll-behavior: smooth; }
 
-.download-link, .copy-btn {
-  margin-left:10px;
-  text-decoration:none;
-  font-size:0.9rem;
-  color:var(--neon);
-  transition:0.3s;
-}
-.download-link:hover, .copy-btn:hover { color: var(--accent); cursor:pointer; }
-.subfolder { margin-left:25px; display:flex; flex-direction:column; gap:6px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-mono);
+      overflow-x: hidden;
+      cursor: none;
+      min-height: 100vh;
+    }
 
-/* Custom cursor */
-.cursor-circle {
-  position: fixed;
-  width: 20px;
-  height: 20px;
-  background: var(--neon);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  mix-blend-mode: difference;
-  transition: width 0.2s ease, height 0.2s ease;
-}
-</style>
+    /* ── Cursor ── */
+    .cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform .1s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform .18s ease-out, opacity .25s;
+      opacity: .4;
+      mix-blend-mode: difference;
+    }
+
+    /* ── Grain ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: .04;
+      pointer-events: none;
+      z-index: 9990;
+    }
+
+    /* ── Canvas ── */
+    #bgCanvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      opacity: .5;
+    }
+
+    ::-webkit-scrollbar { width: 2px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); }
+
+    /* ── Header ── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 28px;
+    }
+
+    .header-logo {
+      font-family: var(--font-mono);
+      font-size: .7rem;
+      letter-spacing: .2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: none;
+      transition: color .2s;
+    }
+    .header-logo:hover { color: var(--accent); }
+
+    .header-right { display: flex; gap: 10px; }
+
+    .icon-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: rgba(15,15,13,.85);
+      backdrop-filter: blur(8px);
+      color: var(--muted);
+      font-size: .8rem;
+      text-decoration: none;
+      cursor: none;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .icon-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(201,168,76,.06);
+    }
+
+    /* ── Page wrapper ── */
+    .page {
+      position: relative;
+      z-index: 10;
+      padding: 120px 24px 80px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ── Page header ── */
+    .page-eyebrow {
+      font-size: .65rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .page-eyebrow::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .page-title {
+      font-family: var(--font-disp);
+      font-size: clamp(4rem, 12vw, 8rem);
+      letter-spacing: .05em;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: .7rem;
+      letter-spacing: .15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 48px;
+    }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .65rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .breadcrumb-item {
+      cursor: none;
+      color: var(--muted);
+      transition: color .2s;
+    }
+    .breadcrumb-item:hover { color: var(--accent); }
+    .breadcrumb-item.active { color: var(--text); }
+    .breadcrumb-sep { color: var(--border); }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 24px;
+      padding: 14px 20px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      margin-bottom: 12px;
+      font-size: .6rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .stats-bar span { display: flex; align-items: center; gap: 6px; }
+    .stats-bar strong { color: var(--accent); font-style: normal; }
+
+    /* ── File list ── */
+    #file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    /* ── Item ── */
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      transition: background .15s, border-color .15s, transform .15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .item::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transition: transform .2s;
+    }
+    .item:hover {
+      background: var(--surface2);
+      border-color: var(--border);
+      transform: translateX(3px);
+    }
+    .item:hover::before { transform: scaleY(1); }
+
+    /* ── Item icon ── */
+    .item-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+      width: 24px;
+      text-align: center;
+    }
+
+    /* ── Item name ── */
+    .item-name {
+      flex: 1;
+      font-size: .8rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item.folder-item .item-name {
+      color: var(--accent2);
+      font-weight: 500;
+      cursor: none;
+    }
+
+    /* ── Item meta ── */
+    .item-meta {
+      font-size: .6rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* ── Item actions ── */
+    .item-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .75rem;
+      text-decoration: none;
+      cursor: none;
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(201,168,76,.08);
+    }
+    .action-btn.copied {
+      border-color: #22c97a;
+      color: #22c97a;
+    }
+
+    /* ── Subfolder ── */
+    .subfolder {
+      margin-left: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 2px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height .3s cubic-bezier(.22,1,.36,1), opacity .25s;
+      opacity: 0;
+    }
+    .subfolder.open {
+      max-height: 9999px;
+      opacity: 1;
+    }
+
+    /* ── Chevron ── */
+    .chevron {
+      flex-shrink: 0;
+      color: var(--muted);
+      font-size: .7rem;
+      transition: transform .2s;
+      cursor: none;
+    }
+    .chevron.open { transform: rotate(90deg); color: var(--accent); }
+
+    /* ── Video player ── */
+    .video-wrapper {
+      margin-top: 8px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      display: none;
+    }
+    .video-wrapper.open { display: block; }
+    .video-wrapper video {
+      width: 100%;
+      display: block;
+      background: #000;
+    }
+
+    /* ── Loading ── */
+    .loading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px;
+      font-size: .7rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .loading-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: loadPulse 1.2s ease-in-out infinite;
+    }
+    .loading-dot:nth-child(2) { animation-delay: .2s; }
+    .loading-dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes loadPulse {
+      0%,100% { opacity: .2; transform: scale(.8); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── Error ── */
+    .error-msg {
+      padding: 20px;
+      border: 1px solid rgba(255,70,70,.3);
+      border-radius: 6px;
+      background: rgba(255,70,70,.05);
+      color: #ff7070;
+      font-size: .75rem;
+      line-height: 1.6;
+    }
+    .error-msg strong { display: block; margin-bottom: 6px; color: #ff9090; }
+
+    /* ── Empty ── */
+    .empty-msg {
+      padding: 20px;
+      color: var(--muted);
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-align: center;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      padding: 32px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .footer-copy {
+      font-size: .6rem;
+      letter-spacing: .15em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .footer-link {
+      color: var(--accent);
+      text-decoration: none;
+      cursor: none;
+      transition: color .2s;
+    }
+    .footer-link:hover { color: var(--accent2); }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 500px) {
+      .item-meta { display: none; }
+      .page-title { font-size: 4rem; }
+    }
+  </style>
 </head>
-<body data-name="- teeno -" data-tagline="Producer • Designer • Creator">
+<body>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
 
-<div id="app">
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-  <header class="corner-controls">
-    <button id="playPause" class="icon-btn" aria-label="Toggle music">⏵</button>
-    <a class="icon-btn" href="/" aria-label="Home">⍟</a>
+  <header>
+    <a class="header-logo" href="/">← teeno.xyz</a>
+    <div class="header-right">
+      <button id="playPause" class="icon-btn" aria-label="Toggle music" title="Music">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <a class="icon-btn" href="/" aria-label="Home" title="Home">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </a>
+    </div>
   </header>
 
-  <main class="hero">
-    <div class="hero-inner">
-      <div class="profile-wrap">
-        <div class="neon-ring"></div>
-        <img src="images/profile.png" alt="Profile" class="profile">
-      </div>
+  <div class="page">
+    <div class="page-eyebrow">002 / Files</div>
+    <h1 class="page-title">DRIVE</h1>
+    <p class="page-subtitle">github.com/lerpyypluh/bio · /drive</p>
 
-      <div class="text">
-        <h1 id="name">- teeno -</h1>
-        <p id="tagline">Producer • Designer • Creator</p>
-      </div>
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-item active" data-path="drive">root</span>
     </div>
 
-    <!-- Drive file list -->
-    <div id="file-list">Loading files...</div>
-  </main>
+    <div class="stats-bar" id="stats-bar">
+      <span><strong id="stat-files">—</strong> files</span>
+      <span><strong id="stat-folders">—</strong> folders</span>
+      <span>GitHub API</span>
+    </div>
+
+    <div id="file-list">
+      <div class="loading">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <span>Fetching files</span>
+      </div>
+    </div>
+  </div>
 
   <footer>
-    Built with ✨ by <a href="https://github.com/lerpyypluh" target="_blank">Teeno</a>
+    <span class="footer-copy">teeno.xyz / drive</span>
+    <span class="footer-copy">Built by <a class="footer-link" href="https://github.com/lerpyypluh" target="_blank">Teeno</a></span>
   </footer>
 
-  <div class="cursor-circle" id="cursor"></div>
-</div>
+  <audio id="bgMusic" loop preload="auto">
+    <source src="music/bg-music.mp3" type="audio/mpeg">
+  </audio>
 
-<script>
-// Custom cursor
-const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top = e.clientY + 'px';
-});
+  <script>
+    // ── Cursor ──
+    const cursor    = document.getElementById('cursor');
+    const cursorRing = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
 
-// GitHub /drive fetch
-const owner = "lerpyypluh";
-const repo = "bio";
-const fileList = document.getElementById("file-list");
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
+    });
+    (function animRing() {
+      rx += (mx - rx) * .12;
+      ry += (my - ry) * .12;
+      cursorRing.style.left = rx + 'px';
+      cursorRing.style.top  = ry + 'px';
+      requestAnimationFrame(animRing);
+    })();
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.5)'; cursorRing.style.opacity = '0'; });
+      el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; cursorRing.style.opacity = '.4'; });
+    });
 
-async function fetchContents(path = "drive", container) {
-  try {
-    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
-    if (!response.ok) throw new Error(`Failed to fetch files at path: ${path}`);
-    const items = await response.json();
+    // ── Canvas bg ──
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
 
-    for (const item of items) {
-      const el = document.createElement("div");
-      el.classList.add("item");
-      const fullPath = item.path;
-      el.dataset.path = fullPath;
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
 
-      if (item.type === "dir") {
-        el.classList.add("folder");
-        const folderName = document.createElement("span");
-        folderName.textContent = item.name;
-        el.appendChild(folderName);
+    class Particle {
+      constructor() { this.reset(true); }
+      reset(init) {
+        this.x = Math.random() * W;
+        this.y = init ? Math.random() * H : H + 10;
+        this.vy = -(Math.random() * .4 + .1);
+        this.vx = (Math.random() - .5) * .15;
+        this.size = Math.random() * 1.5 + .3;
+        this.alpha = Math.random() * .35 + .05;
+        this.color = Math.random() > .7 ? '#c9a84c' : Math.random() > .5 ? '#e8c97a' : '#f0e8d0';
+      }
+      update() { this.y += this.vy; this.x += this.vx; if (this.y < -10) this.reset(false); }
+      draw() {
+        ctx.save(); ctx.globalAlpha = this.alpha; ctx.fillStyle = this.color;
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); ctx.restore();
+      }
+    }
+    for (let i = 0; i < 100; i++) particles.push(new Particle());
 
-        const subContainer = document.createElement("div");
-        subContainer.classList.add("subfolder");
-        subContainer.style.display = "none";
-        container.appendChild(el);
-        container.appendChild(subContainer);
+    (function loop() {
+      ctx.clearRect(0,0,W,H);
+      const g = ctx.createRadialGradient(W/2,H*.3,0,W/2,H*.3,W*.5);
+      g.addColorStop(0,'rgba(201,168,76,.04)'); g.addColorStop(1,'transparent');
+      ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle = 'rgba(255,255,255,.015)'; ctx.lineWidth = 1;
+      for (let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for (let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      particles.forEach(p=>{p.update();p.draw();});
+      requestAnimationFrame(loop);
+    })();
 
-        let loaded = false;
-        el.addEventListener("click", () => {
-          if (subContainer.style.display === "none") {
-            subContainer.style.display = "flex";
-            if (!loaded) { fetchContents(fullPath, subContainer); loaded = true; }
-          } else subContainer.style.display = "none";
+    // ── Music ──
+    const playBtn = document.getElementById('playPause');
+    const audio   = document.getElementById('bgMusic');
+    let playing   = false;
+    playBtn.addEventListener('click', () => {
+      playing = !playing;
+      playing ? audio.play().catch(()=>{}) : audio.pause();
+      playBtn.innerHTML = playing
+        ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>'
+        : '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    });
+
+    // ── GitHub Drive ──
+    const OWNER = 'lerpyypluh';
+    const REPO  = 'bio';
+
+    const VIDEO_EXTS = new Set(['mp4','webm','mov','ogg','mkv']);
+    const IMAGE_EXTS = new Set(['png','jpg','jpeg','gif','webp','svg']);
+    const AUDIO_EXTS = new Set(['mp3','wav','ogg','flac','aac','m4a']);
+
+    let totalFiles = 0, totalFolders = 0;
+
+    function getIcon(item) {
+      if (item.type === 'dir') return '▶';
+      const ext = item.name.split('.').pop().toLowerCase();
+      if (VIDEO_EXTS.has(ext)) return '▶';
+      if (IMAGE_EXTS.has(ext)) return '◈';
+      if (AUDIO_EXTS.has(ext)) return '♪';
+      if (ext === 'pdf') return '▤';
+      if (['zip','rar','7z','tar','gz'].includes(ext)) return '⊞';
+      if (['js','ts','py','html','css','json','md'].includes(ext)) return '⌨';
+      return '◻';
+    }
+
+    function formatSize(bytes) {
+      if (!bytes) return '';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+      return (bytes/1024/1024).toFixed(1) + ' MB';
+    }
+
+    async function fetchContents(path, container, depth = 0) {
+      const loadEl = document.createElement('div');
+      loadEl.className = 'loading';
+      loadEl.innerHTML = '<div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div><span>Loading...</span>';
+      container.appendChild(loadEl);
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`, {
+          headers: { 'Accept': 'application/vnd.github.v3+json' }
         });
 
-      } else if (item.type === "file") {
-        el.classList.add("file");
-
-        const ext = item.name.split('.').pop().toLowerCase();
-        const videoFormats = ["mp4", "webm", "mov", "ogg", "mkv"];
-
-        const fileName = document.createElement("span");
-        fileName.textContent = item.name;
-        el.appendChild(fileName);
-
-        if (videoFormats.includes(ext)) {
-          // Create inline video player
-          const video = document.createElement("video");
-          video.src = item.download_url;
-          video.controls = true;
-          video.style.maxWidth = "100%";
-          video.style.marginTop = "10px";
-          video.style.borderRadius = "12px";
-          video.preload = "metadata";
-
-          // Toggle play/pause on click
-          video.addEventListener("click", () => {
-            if (video.paused) video.play();
-            else video.pause();
-          });
-
-          const videoContainer = document.createElement("div");
-          videoContainer.style.display = "flex";
-          videoContainer.style.flexDirection = "column";
-          videoContainer.style.gap = "8px";
-          videoContainer.appendChild(video);
-          el.appendChild(videoContainer);
-        } else {
-          // Regular file link
-          const link = document.createElement("a");
-          link.href = item.download_url;
-          link.textContent = "Open";
-          link.target = "_blank";
-          link.className = "download-link";
-          el.appendChild(link);
+        if (!res.ok) {
+          const rateLimited = res.status === 403;
+          throw new Error(rateLimited
+            ? 'GitHub API rate limit hit. Try again in a minute.'
+            : `HTTP ${res.status} — ${res.statusText}`);
         }
 
-        // Copy URL button
-        const copyBtn = document.createElement("button");
-        copyBtn.textContent = "🔗";
-        copyBtn.className = "copy-btn";
-        copyBtn.title = "Copy file URL";
-        copyBtn.addEventListener("click", () => navigator.clipboard.writeText(item.download_url));
-        el.appendChild(copyBtn);
+        const items = await res.json();
+        loadEl.remove();
 
-        container.appendChild(el);
+        if (!items.length) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-msg';
+          empty.textContent = 'This folder is empty';
+          container.appendChild(empty);
+          return;
+        }
+
+        // Sort: folders first, then alphabetical
+        items.sort((a,b) => {
+          if (a.type !== b.type) return a.type === 'dir' ? -1 : 1;
+          return a.name.localeCompare(b.name);
+        });
+
+        for (const item of items) {
+          if (depth === 0) {
+            item.type === 'dir' ? totalFolders++ : totalFiles++;
+            document.getElementById('stat-files').textContent   = totalFiles;
+            document.getElementById('stat-folders').textContent = totalFolders;
+          }
+
+          const wrapper = document.createElement('div');
+          wrapper.style.animation = 'slideDown .2s ease both';
+
+          const el = document.createElement('div');
+          el.className = 'item ' + (item.type === 'dir' ? 'folder-item' : 'file-item');
+
+          const icon = document.createElement('span');
+          icon.className = 'item-icon';
+          icon.textContent = getIcon(item);
+          if (item.type === 'dir') icon.style.color = 'var(--accent)';
+
+          const name = document.createElement('span');
+          name.className = 'item-name';
+          name.textContent = item.name;
+
+          const meta = document.createElement('span');
+          meta.className = 'item-meta';
+          meta.textContent = item.size ? formatSize(item.size) : '';
+
+          const actions = document.createElement('div');
+          actions.className = 'item-actions';
+
+          el.appendChild(icon);
+          el.appendChild(name);
+          el.appendChild(meta);
+          el.appendChild(actions);
+          wrapper.appendChild(el);
+
+          if (item.type === 'dir') {
+            // Chevron
+            const chev = document.createElement('span');
+            chev.className = 'chevron';
+            chev.textContent = '▶';
+            el.insertBefore(chev, icon);
+
+            const subContainer = document.createElement('div');
+            subContainer.className = 'subfolder';
+            wrapper.appendChild(subContainer);
+
+            let loaded = false;
+            el.addEventListener('click', () => {
+              const isOpen = subContainer.classList.toggle('open');
+              chev.classList.toggle('open', isOpen);
+              if (isOpen && !loaded) {
+                fetchContents(item.path, subContainer, depth + 1);
+                loaded = true;
+              }
+            });
+
+          } else {
+            const ext = item.name.split('.').pop().toLowerCase();
+
+            // Open / view button
+            if (item.download_url) {
+              if (IMAGE_EXTS.has(ext)) {
+                const viewBtn = document.createElement('a');
+                viewBtn.className = 'action-btn';
+                viewBtn.href = item.download_url;
+                viewBtn.target = '_blank';
+                viewBtn.title = 'View image';
+                viewBtn.innerHTML = '◈';
+                actions.appendChild(viewBtn);
+              } else if (VIDEO_EXTS.has(ext)) {
+                // Toggle inline video
+                const playBtnEl = document.createElement('button');
+                playBtnEl.className = 'action-btn';
+                playBtnEl.title = 'Play video';
+                playBtnEl.innerHTML = '▶';
+
+                const videoWrapper = document.createElement('div');
+                videoWrapper.className = 'video-wrapper';
+                const video = document.createElement('video');
+                video.controls = true;
+                video.preload = 'none';
+                video.style.borderRadius = '4px';
+                videoWrapper.appendChild(video);
+                wrapper.appendChild(videoWrapper);
+
+                playBtnEl.addEventListener('click', () => {
+                  const isOpen = videoWrapper.classList.toggle('open');
+                  if (isOpen && !video.src) video.src = item.download_url;
+                  playBtnEl.innerHTML = isOpen ? '■' : '▶';
+                });
+                actions.appendChild(playBtnEl);
+              } else if (AUDIO_EXTS.has(ext)) {
+                const audioBtn = document.createElement('a');
+                audioBtn.className = 'action-btn';
+                audioBtn.href = item.download_url;
+                audioBtn.target = '_blank';
+                audioBtn.title = 'Open audio';
+                audioBtn.innerHTML = '♪';
+                actions.appendChild(audioBtn);
+              } else {
+                const openBtn = document.createElement('a');
+                openBtn.className = 'action-btn';
+                openBtn.href = item.download_url;
+                openBtn.target = '_blank';
+                openBtn.title = 'Open file';
+                openBtn.innerHTML = '↗';
+                actions.appendChild(openBtn);
+              }
+
+              // Download button
+              const dlBtn = document.createElement('a');
+              dlBtn.className = 'action-btn';
+              dlBtn.href = item.download_url;
+              dlBtn.download = item.name;
+              dlBtn.title = 'Download';
+              dlBtn.innerHTML = '↓';
+              actions.appendChild(dlBtn);
+            }
+
+            // Copy URL button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'action-btn';
+            copyBtn.title = 'Copy URL';
+            copyBtn.innerHTML = '⧉';
+            copyBtn.addEventListener('click', async () => {
+              await navigator.clipboard.writeText(item.download_url || item.html_url);
+              copyBtn.innerHTML = '✓';
+              copyBtn.classList.add('copied');
+              setTimeout(() => { copyBtn.innerHTML = '⧉'; copyBtn.classList.remove('copied'); }, 1500);
+            });
+            actions.appendChild(copyBtn);
+          }
+
+          container.appendChild(wrapper);
+        }
+
+      } catch (err) {
+        loadEl.remove();
+        const errEl = document.createElement('div');
+        errEl.className = 'error-msg';
+        errEl.innerHTML = `<strong>Failed to load files</strong>${err.message}<br><br>Check the console for details.`;
+        container.appendChild(errEl);
+        console.error('[Drive]', err);
       }
     }
 
-  } catch (err) {
-    container.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
-    console.error(err);
-  }
-}
-
-// Initialize
-fileList.innerHTML = "";
-fetchContents("drive", fileList);
-</script>
-
-<script src="script.js" defer></script>
+    // Init
+    fetchContents('drive', document.getElementById('file-list'), 0);
+  </script>
 </body>
 </html>
